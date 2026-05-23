@@ -323,31 +323,18 @@ body {
 /* ─── RESULTS SCREEN ───────────────────────────────────────── */
 #screen-results { padding-top: 40px; }
 
-.results-header { margin-bottom: 8px; }
+.results-header { margin-bottom: 24px; }
 
-.results-eyebrow {
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 10px;
-}
-
-.results-heading {
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 5vw, 2.2rem);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-}
-
-.disclaimer {
+.results-summary {
   font-size: 0.8rem;
   color: var(--muted);
-  font-style: italic;
-  margin-bottom: 20px;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+
+.results-summary strong {
+  color: var(--text);
+  font-weight: 500;
 }
 
 .rent-banner {
@@ -604,6 +591,14 @@ body {
   border-top: 1px solid var(--border);
 }
 
+.disclaimer {
+  font-size: 0.78rem;
+  color: var(--subtle);
+  font-style: italic;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
 .btn-restart {
   background: none;
   border: none;
@@ -740,12 +735,8 @@ body {
   <section id="screen-results" class="screen" aria-label="Резултати">
 
     <div class="results-header">
-      <p class="results-eyebrow">Твоите квартали</p>
-      <h2 class="results-heading" id="results-heading">Намерени квартали</h2>
-      <p class="disclaimer" id="result-disclaimer"></p>
+      <p class="results-summary" id="results-summary"></p>
     </div>
-
-    <div class="rent-banner" role="note" id="rent-banner-el"></div>
 
     <!-- Toggles -->
     <div class="toggles-row" role="group" aria-label="Филтри и сортиране">
@@ -754,18 +745,21 @@ body {
         <button class="toggle-btn" data-toggle="coastal" data-v="coastal">Само крайбрежни</button>
       </div>
       <div class="toggle-group" role="group" aria-label="Сортиране">
-        <button class="toggle-btn active" data-toggle="sort" data-v="proximity">Близост до центъра</button>
-        <button class="toggle-btn" data-toggle="sort" data-v="affordability">Достъпност</button>
+        <button class="toggle-btn active" data-toggle="sort" data-v="affordability">По-нисък наем</button>
+        <button class="toggle-btn" data-toggle="sort" data-v="proximity">Близост до центъра</button>
       </div>
     </div>
 
     <!-- NOR/SOR chips -->
     <div class="nor-sor-filters" role="group" aria-label="Северно / Южно от реката">
-      <button class="filter-chip active" data-nor="all">Всички</button>
-      <button class="filter-chip" data-nor="nor">Северно от реката</button>
-      <button class="filter-chip" data-nor="sor">Южно от реката</button>
-      <button class="filter-chip" data-nor="central">Централно</button>
+      <button class="filter-chip active" data-nor="all">Покажи: Всички</button>
+      <button class="filter-chip" data-nor="nor">Покажи: Северно от реката</button>
+      <button class="filter-chip" data-nor="sor">Покажи: Южно от реката</button>
+      <button class="filter-chip" data-nor="central">Покажи: Централно</button>
     </div>
+
+    <!-- Rent banner — above cards -->
+    <div class="rent-banner" role="note" id="rent-banner-el"></div>
 
     <!-- Cards -->
     <div id="cards-container" aria-live="polite" aria-label="Препоръчани квартали"></div>
@@ -778,6 +772,7 @@ body {
 
     <!-- Restart -->
     <div class="restart-row">
+      <p class="disclaimer" id="result-disclaimer"></p>
       <button class="btn-restart" id="btn-restart">← Започни отначало</button>
     </div>
 
@@ -786,7 +781,7 @@ body {
 </div><!-- /.app -->
 
 <!-- ─── GoatCounter (replace YOURCODE) ──────────────────────── -->
-<!-- <script data-goatcounter="https://emigratetoaustralia.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script> -->
+<!-- <script data-goatcounter="https://YOURCODE.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script> -->
 
 <!-- ─── DATA + LOGIC ─────────────────────────────────────────── -->
 <script src="suburbs.js"></script>
@@ -794,9 +789,9 @@ body {
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────
-// SHA-256 of the unlock code.
+// SHA-256 of the unlock code (e.g. "PERTH2026").
 // Replace this hash before launch; rotate annually with rent refresh.
-const CODE_HASH = "9e01ef4760aad3db59a3eecd7829f7536c85617e04861683fe3fd28dc71080cc"; // placeholder
+const CODE_HASH = "8c6e7d21b9f4a05326f1e2830c5490f6b77a3ec85d94018b6d2a3c1e7f40259e"; // placeholder
 
 const VISIBLE_DEFAULT = 5;
 
@@ -978,23 +973,29 @@ function finishQuiz() {
   state.basePool     = runQuiz(budget, character, transport);
   state.visibleCount = VISIBLE_DEFAULT;
   state.coastal      = "all";
-  state.sort         = "proximity";
+  state.sort         = "affordability";
   state.norSor       = "all";
 
   // Reset toggle UI to defaults
   document.querySelectorAll("[data-toggle]").forEach(btn => {
     btn.classList.toggle("active",
-      (btn.dataset.toggle === "coastal" && btn.dataset.v === "all") ||
-      (btn.dataset.toggle === "sort"    && btn.dataset.v === "proximity")
+      (btn.dataset.toggle === "coastal"      && btn.dataset.v === "all") ||
+      (btn.dataset.toggle === "sort"         && btn.dataset.v === "affordability")
     );
   });
   document.querySelectorAll(".filter-chip").forEach(c => {
     c.classList.toggle("active", c.dataset.nor === "all");
   });
 
-  const count = state.basePool.length;
-  document.getElementById("results-heading").textContent =
-    `${count} ${count === 1 ? "квартал" : count < 5 ? "квартала" : "квартала"} за теб`;
+  // Answer summary
+  const budgetLabel    = budget    === "below"  ? "под $750/сед."          : "над $750/сед.";
+  const charLabel      = character === "quiet"  ? "тихо"                   : "оживено";
+  const transportLabel = transport === "car"    ? "с кола"                 : "с публичен транспорт";
+  const count          = state.basePool.length;
+  const countWord      = count === 1 ? "квартал" : "квартала";
+
+  document.getElementById("results-summary").innerHTML =
+    `${count} ${countWord} за: <strong>${budgetLabel}</strong> · <strong>${charLabel}</strong> · <strong>${transportLabel}</strong>`;
 
   renderCards();
   showScreen("results");
@@ -1094,7 +1095,7 @@ function buildCard(suburb, index) {
 }
 
 function formatRent(rentObj, label) {
-  const heading = label === "3br" ? "3-стаен дом" : "4-стаен дом";
+  const heading = label === "3br" ? "Къща с 3 спални" : "Къща с 4 спални";
   if (rentObj.sparse) {
     const sparseText = label === "3br" ? SPARSE_LABELS["3br"] : SPARSE_LABELS["4br"];
     return `
