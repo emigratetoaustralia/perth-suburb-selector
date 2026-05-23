@@ -147,12 +147,26 @@ body {
 /* ─── GATE SCREEN ──────────────────────────────────────────── */
 #screen-gate { padding-top: 48px; }
 
+.gate-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+}
+
 .gate-heading {
   font-family: var(--font-display);
   font-size: clamp(1.6rem, 5vw, 2.4rem);
   font-weight: 800;
   line-height: 1.15;
   margin-bottom: 16px;
+}
+
+.gate-heading em {
+  font-style: normal;
+  color: var(--orange);
 }
 
 .gate-body {
@@ -648,12 +662,14 @@ body {
 
   <!-- ── SCREEN: PATREON GATE ────────────────────────────────── -->
   <section id="screen-gate" class="screen" aria-label="Отключи резултатите">
-    <h2 class="gate-heading">Отключи<br>резултатите</h2>
+    <p class="gate-eyebrow">Почти готово</p>
+    <h2 class="gate-heading" id="gate-heading">Намерихме <em id="gate-count">—</em> квартала за теб.</h2>
     <p class="gate-body">
       Инструментът е безплатен за членове на
       <a href="https://www.patreon.com/posts/perth-suburb-za-159034245" target="_blank" rel="noopener">Patreon</a>
-      (безплатно ниво). Влез в профила си, намери публикацията
-      „Perth Suburb Selector" и въведи кода от нея.
+      (безплатно ниво). Влез в профила си, намери
+      <a href="https://www.patreon.com/posts/perth-suburb-za-159034245" target="_blank" rel="noopener">публикацията „Perth Suburb Selector"</a>
+      и въведи кода от нея.
     </p>
     <div class="code-form">
       <input
@@ -842,14 +858,10 @@ function showScreen(id) {
   document.getElementById("result-disclaimer").textContent = RESULT_DISCLAIMER;
   document.getElementById("rent-banner-el").textContent    = RENT_BANNER;
 
-  // ── Start button
+  // ── Start button — always goes straight to quiz
   document.getElementById("btn-start").addEventListener("click", () => {
     track("quiz-start");
-    if (state.unlocked) {
-      showScreen("quiz");
-    } else {
-      showScreen("gate");
-    }
+    showScreen("quiz");
   });
 
   // ── Unlock form
@@ -870,7 +882,6 @@ function showScreen(id) {
     btn.addEventListener("click", () => {
       const toggle = btn.dataset.toggle;
       const val    = btn.dataset.v;
-      // Update active state within the group
       btn.closest(".toggle-group")
          .querySelectorAll(".toggle-btn")
          .forEach(b => b.classList.toggle("active", b === btn));
@@ -917,12 +928,12 @@ async function handleUnlock() {
     track("code-unlock-success");
     input.classList.remove("error");
     error.classList.remove("visible");
-    showScreen("quiz");
+    // Results are already computed — go straight there
+    showResultsScreen();
   } else {
     track("code-unlock-fail");
     input.classList.add("error");
     error.classList.add("visible");
-    // Remove error class after animation
     setTimeout(() => input.classList.remove("error"), 600);
   }
 }
@@ -931,11 +942,9 @@ async function handleUnlock() {
 function handleChoice(question, value) {
   state.answers[question] = value;
 
-  // Highlight selected
   document.querySelectorAll(`[data-q="${question}"]`)
           .forEach(b => b.classList.toggle("selected", b.dataset.v === value));
 
-  // Advance after brief delay for visual feedback
   setTimeout(() => {
     if (state.currentQ < 3) {
       advanceQuestion();
@@ -970,17 +979,35 @@ function finishQuiz() {
   const comboString = `${budget}|${character}|${transport}`;
   track("quiz-complete", comboString);
 
+  // Compute results now regardless of lock state
   state.basePool     = runQuiz(budget, character, transport);
   state.visibleCount = VISIBLE_DEFAULT;
   state.coastal      = "all";
   state.sort         = "affordability";
   state.norSor       = "all";
 
+  if (!state.unlocked) {
+    // Show gate with suburb count as payoff
+    const count     = state.basePool.length;
+    const countWord = count === 1 ? "квартал" : "квартала";
+    document.getElementById("gate-count").textContent = `${count} ${countWord}`;
+    document.getElementById("code-input").value = "";
+    document.getElementById("gate-error").classList.remove("visible");
+    showScreen("gate");
+  } else {
+    showResultsScreen();
+  }
+}
+
+// ─── SHOW RESULTS (shared by finishQuiz and handleUnlock) ────
+function showResultsScreen() {
+  const { budget, character, transport } = state.answers;
+
   // Reset toggle UI to defaults
   document.querySelectorAll("[data-toggle]").forEach(btn => {
     btn.classList.toggle("active",
-      (btn.dataset.toggle === "coastal"      && btn.dataset.v === "all") ||
-      (btn.dataset.toggle === "sort"         && btn.dataset.v === "affordability")
+      (btn.dataset.toggle === "coastal"  && btn.dataset.v === "all") ||
+      (btn.dataset.toggle === "sort"     && btn.dataset.v === "affordability")
     );
   });
   document.querySelectorAll(".filter-chip").forEach(c => {
@@ -988,9 +1015,9 @@ function finishQuiz() {
   });
 
   // Answer summary
-  const budgetLabel    = budget    === "below"  ? "под $750/сед."          : "над $750/сед.";
-  const charLabel      = character === "quiet"  ? "тихо"                   : "оживено";
-  const transportLabel = transport === "car"    ? "с кола"                 : "с публичен транспорт";
+  const budgetLabel    = budget    === "below" ? "под $750/сед."        : "над $750/сед.";
+  const charLabel      = character === "quiet" ? "тихо"                 : "оживено";
+  const transportLabel = transport === "car"   ? "с кола"               : "с публичен транспорт";
   const count          = state.basePool.length;
   const countWord      = count === 1 ? "квартал" : "квартала";
 
@@ -1031,11 +1058,9 @@ function renderCards() {
   visible.forEach((suburb, idx) => {
     const card = buildCard(suburb, idx);
     container.appendChild(card);
-    // Track suburb-shown once per render
     track("suburb-shown", suburb.id);
   });
 
-  // Load more button
   const hasMore = pool.length > state.visibleCount;
   loadBtn.classList.toggle("hidden", !hasMore);
   if (hasMore) {
@@ -1051,19 +1076,15 @@ function buildCard(suburb, index) {
   card.style.animationDelay = (index * 60) + "ms";
   card.setAttribute("aria-label", suburb.name);
 
-  // PT badge class
   const ptClass = { good: "badge-pt-good", moderate: "badge-pt-moderate", car: "badge-pt-car" }[suburb.pt];
   const ptLabel = PT_LABELS[suburb.pt];
 
-  // NOR/SOR badge
   const norClass = { nor: "badge-nor", sor: "badge-sor", central: "badge-central" }[suburb.nor_sor];
   const norLabel = NOR_SOR_LABELS[suburb.nor_sor];
 
-  // Rent rows
   const rent3 = formatRent(suburb.rent_3br, "3br");
   const rent4 = formatRent(suburb.rent_4br, "4br");
 
-  // PT caveat (only for moderate / car)
   const ptNote = (suburb.pt === "moderate" || suburb.pt === "car")
     ? `<p class="card-pt-note">${PT_CAVEATS[suburb.pt]}</p>`
     : "";
@@ -1124,7 +1145,6 @@ function restart() {
   state.currentQ  = 1;
   state.basePool  = [];
 
-  // Reset quiz UI
   document.querySelectorAll(".question-block").forEach((b, i) => {
     b.classList.toggle("active", i === 0);
   });
