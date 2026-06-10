@@ -1062,7 +1062,7 @@ function renderCards() {
 });
 setTimeout(() => {
   visible.forEach((suburb, idx) => {
-    setTimeout(() => track("suburb-shown", suburb.id), idx * 150);
+    setTimeout(() => track("suburb-shown", suburb.id), idx * 350);
   });
 }, 1000);
 
