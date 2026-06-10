@@ -1059,7 +1059,7 @@ function renderCards() {
   visible.forEach((suburb, idx) => {
     const card = buildCard(suburb, idx);
     container.appendChild(card);
-    track("suburb-shown", suburb.id);
+    setTimeout(() => track("suburb-shown", suburb.id), idx * 400);
   });
 
   const hasMore = pool.length > state.visibleCount;
