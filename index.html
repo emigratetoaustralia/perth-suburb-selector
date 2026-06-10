@@ -1057,10 +1057,14 @@ function renderCards() {
   const visible = pool.slice(0, state.visibleCount);
 
   visible.forEach((suburb, idx) => {
-    const card = buildCard(suburb, idx);
-    container.appendChild(card);
+  const card = buildCard(suburb, idx);
+  container.appendChild(card);
+});
+setTimeout(() => {
+  visible.forEach((suburb, idx) => {
     setTimeout(() => track("suburb-shown", suburb.id), idx * 150);
   });
+}, 1000);
 
   const hasMore = pool.length > state.visibleCount;
   loadBtn.classList.toggle("hidden", !hasMore);
