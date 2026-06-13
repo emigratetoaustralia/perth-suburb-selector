@@ -777,6 +777,17 @@ body {
     <!-- Rent banner — above cards -->
     <div class="rent-banner" role="note" id="rent-banner-el"></div>
 
+    <!-- Article teaser -->
+    <div class="rent-banner" style="margin-bottom:16px;">
+      💡 Имаш списъка си. Но quiz-ът не може да ти каже всичко.
+      <a href="https://www.patreon.com/emigratetoaustralia/posts/kakvoto-quiz-t-v-160681631"
+         target="_blank" rel="noopener"
+         style="color:var(--orange);text-decoration:none;border-bottom:1px solid rgba(255,128,0,0.4);"
+         onclick="track('article-cta-top', 'kakvoto-quiz')">
+        → Виж какво остава скрито
+      </a>
+    </div>
+
     <!-- Cards -->
     <div id="cards-container" aria-live="polite" aria-label="Препоръчани квартали"></div>
     <div class="empty-state" id="empty-state">Няма квартали, отговарящи на избраните филтри.</div>
@@ -789,6 +800,25 @@ body {
     <!-- Restart -->
     <div class="restart-row">
       <p class="disclaimer" id="result-disclaimer"></p>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:28px;text-align:left;">
+        <p style="font-size:0.95rem;font-weight:500;color:var(--text);margin-bottom:10px;">
+          Това е стартовата точка, не финалната.
+        </p>
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.7;margin-bottom:16px;">
+          Quiz-ът подрежда предградията по бюджет, характер и транспорт.
+          Но има неща, които три въпроса няма как да хванат — училищата,
+          реалното време за път, качеството на строежа, и защо
+          „под медианата" не значи това, което си мислиш.
+        </p>
+        <a href="https://www.patreon.com/emigratetoaustralia/posts/kakvoto-quiz-t-v-160681631"
+           target="_blank" rel="noopener"
+           style="display:inline-block;background:var(--orange);color:#000;font-family:var(--font-display);font-weight:700;font-size:0.85rem;letter-spacing:0.04em;text-transform:uppercase;padding:12px 24px;border-radius:var(--radius-sm);text-decoration:none;"
+           onclick="track('article-cta-bottom', 'kakvoto-quiz')">
+          Прочети „Каквото quiz-ът не ти казва" →
+        </a>
+      </div>
+
       <button class="btn-restart" id="btn-restart">← Започни отначало</button>
     </div>
 
