@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0d0d0d" />
+<title>Намери квартала си в Пърт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+<style>
+/* ─── RESET & BASE ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange:  #ff8000;
+  --blue:    #0252a3;
+  --red:     #990300;
+  --green:   #01a34f;
+  --bg:      #0d0d0d;
+  --surface: #161616;
+  --card:    #1c1c1c;
+  --border:  #2a2a2a;
+  --text:    #f0ede8;
+  --muted:   #888880;
+  --subtle:  #444440;
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── LAYOUT ───────────────────────────────────────────────── */
+.app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* ─── HEADER ───────────────────────────────────────────────── */
+.site-header {
+  padding: 40px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.site-header .logo-mark {
+  width: 36px;
+  height: 36px;
+  background: var(--orange);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.site-header .logo-text {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── SCREENS ──────────────────────────────────────────────── */
+.screen { display: none; animation: fadeUp 0.4s ease both; }
+.screen.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── INTRO SCREEN ─────────────────────────────────────────── */
+#screen-intro { padding-top: 48px; }
+
+.intro-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+}
+
+.intro-heading {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.intro-heading em {
+  font-style: normal;
+  color: var(--orange);
+}
+
+.intro-body {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 520px;
+  margin-bottom: 40px;
+  line-height: 1.7;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--orange);
+  color: #000;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(255,128,0,0.35);
+}
+
+.btn-primary svg { flex-shrink: 0; }
+
+/* ─── GATE SCREEN ──────────────────────────────────────────── */
+#screen-gate { padding-top: 48px; }
+
+.gate-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+}
+
+.gate-heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.gate-heading em {
+  font-style: normal;
+  color: var(--orange);
+}
+
+.gate-body {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.7;
+  max-width: 500px;
+}
+
+.gate-body a {
+  color: var(--orange);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,128,0,0.4);
+  padding-bottom: 1px;
+  transition: border-color 0.2s;
+}
+.gate-body a:hover { border-color: var(--orange); }
+
+.code-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.code-input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 14px 18px;
+  outline: none;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: border-color 0.2s;
+}
+
+.code-input::placeholder { color: var(--subtle); letter-spacing: 0.05em; text-transform: none; }
+.code-input:focus { border-color: var(--orange); }
+
+.code-input.error { border-color: var(--red); animation: shake 0.4s ease; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-6px); }
+  40%,80%  { transform: translateX(6px); }
+}
+
+.btn-unlock {
+  background: var(--orange);
+  color: #000;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-unlock:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(255,128,0,0.3); }
+
+.gate-error {
+  margin-top: 14px;
+  font-size: 0.875rem;
+  color: var(--red);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.gate-error.visible { opacity: 1; }
+
+/* ─── QUIZ SCREEN ──────────────────────────────────────────── */
+#screen-quiz { padding-top: 48px; }
+
+.quiz-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 48px;
+}
+
+.progress-pip {
+  height: 3px;
+  flex: 1;
+  background: var(--border);
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+.progress-pip.done { background: var(--orange); }
+.progress-pip.active { background: var(--orange); opacity: 0.5; }
+
+.question-block { display: none; animation: fadeUp 0.35s ease both; }
+.question-block.active { display: block; }
+
+.question-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.question-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 4.5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-bottom: 32px;
+  color: var(--text);
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 420px) { .choice-grid { grid-template-columns: 1fr; } }
+
+.choice-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 400;
+  padding: 20px 18px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, background 0.18s, transform 0.15s;
+  line-height: 1.4;
+}
+
+.choice-btn .choice-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+.choice-btn .choice-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.choice-btn:hover {
+  border-color: var(--orange);
+  background: rgba(255,128,0,0.06);
+  transform: translateY(-2px);
+}
+
+.choice-btn.selected {
+  border-color: var(--orange);
+  background: rgba(255,128,0,0.1);
+}
+
+/* ─── RESULTS SCREEN ───────────────────────────────────────── */
+#screen-results { padding-top: 40px; }
+
+.results-header { margin-bottom: 24px; }
+
+.results-summary {
+  font-size: 0.8rem;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+
+.results-summary strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.rent-banner {
+  background: rgba(255,128,0,0.08);
+  border: 1px solid rgba(255,128,0,0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* ─── TOGGLES ──────────────────────────────────────────────── */
+.toggles-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+  align-items: center;
+}
+
+.toggle-group {
+  display: flex;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 400;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+
+.toggle-btn.active {
+  background: var(--orange);
+  color: #000;
+  font-weight: 500;
+}
+
+.nor-sor-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.filter-chip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.filter-chip.active {
+  background: rgba(2,82,163,0.2);
+  border-color: var(--blue);
+  color: #7aaddc;
+}
+
+.filter-chip[data-nor="nor"].active  { background: rgba(2,82,163,0.15); border-color: #0252a3; color: #7aaddc; }
+.filter-chip[data-nor="sor"].active  { background: rgba(153,3,0,0.15);  border-color: #990300; color: #d97a7a; }
+.filter-chip[data-nor="central"].active { background: rgba(255,255,255,0.08); border-color: #666; color: var(--text); }
+
+/* ─── SUBURB CARDS ─────────────────────────────────────────── */
+#cards-container { display: flex; flex-direction: column; gap: 18px; }
+
+.suburb-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: fadeUp 0.35s ease both;
+  transition: border-color 0.2s;
+}
+
+.suburb-card:hover { border-color: var(--subtle); }
+
+.card-header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-name {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.badge {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge-nor  { background: rgba(2,82,163,0.18);  color: #7aaddc; border: 1px solid rgba(2,82,163,0.3); }
+.badge-sor  { background: rgba(153,3,0,0.18);   color: #d97a7a; border: 1px solid rgba(153,3,0,0.3); }
+.badge-central { background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid var(--border); }
+
+.badge-pt-good     { background: rgba(1,163,79,0.15); color: #5ed49a; border: 1px solid rgba(1,163,79,0.3); }
+.badge-pt-moderate { background: rgba(255,180,0,0.12); color: #f0c060; border: 1px solid rgba(255,180,0,0.3); }
+.badge-pt-car      { background: rgba(153,3,0,0.12); color: #d97a7a; border: 1px solid rgba(153,3,0,0.25); }
+
+.card-body { padding: 16px 20px 0; }
+
+.card-description {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #ccc8c0;
+  margin-bottom: 16px;
+}
+
+.card-rent {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.rent-item {}
+.rent-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.rent-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.rent-sparse {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.rent-disclaimer {
+  font-size: 0.72rem;
+  color: var(--subtle);
+  margin-top: 8px;
+  grid-column: 1 / -1;
+}
+
+.card-caveat {
+  font-size: 0.82rem;
+  color: var(--muted);
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border-left: 2px solid var(--orange);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.card-pt-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.02);
+  border-left: 2px solid var(--subtle);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+.card-footer {
+  padding: 14px 20px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-cbd {
+  font-size: 0.75rem;
+  color: var(--subtle);
+}
+
+/* ─── EMPTY STATE ──────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  display: none;
+}
+.empty-state.visible { display: block; }
+
+/* ─── LOAD MORE ────────────────────────────────────────────── */
+.load-more-wrap {
+  text-align: center;
+  margin-top: 28px;
+}
+
+.btn-load-more {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-load-more:hover { border-color: var(--orange); color: var(--orange); }
+.btn-load-more.hidden { display: none; }
+
+/* ─── RESTART ──────────────────────────────────────────────── */
+.restart-row {
+  text-align: center;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.disclaimer {
+  font-size: 0.78rem;
+  color: var(--subtle);
+  font-style: italic;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.btn-restart {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--subtle);
+}
+.btn-restart:hover { color: var(--text); }
+
+/* ─── UTILITY ──────────────────────────────────────────────── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="logo-mark" aria-hidden="true"></div>
+    <span class="logo-text">Емигрирай в Австралия</span>
+  </header>
+
+  <!-- ── SCREEN: INTRO ───────────────────────────────────────── -->
+  <section id="screen-intro" class="screen active" aria-label="Начален екран">
+    <p class="intro-eyebrow">Намери квартала си в Пърт</p>
+    <h1 class="intro-heading">Кой квартал<br>е <em>твоят</em>?</h1>
+    <p class="intro-body">
+      Три въпроса. Препоръки, базирани на реален бюджет,
+      транспорт и начин на живот — от човек, живеещ в Пърт от 2012 г.
+    </p>
+    <button class="btn-primary" id="btn-start">
+      Започни
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </section>
+
+  <!-- ── SCREEN: PATREON GATE ────────────────────────────────── -->
+  <section id="screen-gate" class="screen" aria-label="Отключи резултатите">
+    <p class="gate-eyebrow">Почти е готово</p>
+    <h2 class="gate-heading" id="gate-heading">Намерихме <em id="gate-count">—</em> за теб.</h2>
+    <p class="gate-body">
+      Инструментът е безплатен за членове в
+      <a href="https://www.patreon.com/posts/perth-suburb-za-159034245" target="_blank" rel="noopener">Patreon</a>
+      (безплатно ниво). Влез в профила си, намери
+      <a href="https://www.patreon.com/posts/perth-suburb-za-159034245" target="_blank" rel="noopener">публикацията „Perth Suburb Selector"</a>
+      и въведи кода от нея.
+    </p>
+    <div class="code-form">
+      <input
+        type="text"
+        id="code-input"
+        class="code-input"
+        placeholder="Въведи кода"
+        maxlength="20"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        aria-label="Код за достъп"
+      />
+      <button class="btn-unlock" id="btn-unlock">Отключи</button>
+    </div>
+    <p class="gate-error" id="gate-error" role="alert">Невалиден код. Провери отново.</p>
+  </section>
+
+  <!-- ── SCREEN: QUIZ ─────────────────────────────────────────── -->
+  <section id="screen-quiz" class="screen" aria-label="Въпросник">
+
+    <div class="quiz-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-label="Прогрес на въпросника">
+      <div class="progress-pip active" data-step="1"></div>
+      <div class="progress-pip" data-step="2"></div>
+      <div class="progress-pip" data-step="3"></div>
+    </div>
+
+    <!-- Q1: Budget -->
+    <div class="question-block active" id="q1">
+      <p class="question-label">Въпрос 1 от 3</p>
+      <h2 class="question-text">Какъв е бюджетът ти за наем?</h2>
+      <div class="choice-grid">
+        <button class="choice-btn" data-q="budget" data-v="below">
+          <span class="choice-label">Под медианата</span>
+          <span class="choice-sub">под $750/седмица за 3-стаен</span>
+        </button>
+        <button class="choice-btn" data-q="budget" data-v="above">
+          <span class="choice-label">Над медианата</span>
+          <span class="choice-sub">$750/седмица и повече</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Q2: Character -->
+    <div class="question-block" id="q2">
+      <p class="question-label">Въпрос 2 от 3</p>
+      <h2 class="question-text">Какъв квартален характер търсиш?</h2>
+      <div class="choice-grid">
+        <button class="choice-btn" data-q="character" data-v="quiet">
+          <span class="choice-label">Тихо</span>
+          <span class="choice-sub">спокоен, семеен, зелен</span>
+        </button>
+        <button class="choice-btn" data-q="character" data-v="lively">
+          <span class="choice-label">Оживено</span>
+          <span class="choice-sub">кафенета, ресторанти, хора</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Q3: Transport -->
+    <div class="question-block" id="q3">
+      <p class="question-label">Въпрос 3 от 3</p>
+      <h2 class="question-text">Как планираш да се придвижваш?</h2>
+      <div class="choice-grid">
+        <button class="choice-btn" data-q="transport" data-v="car">
+          <span class="choice-label">Имам кола</span>
+          <span class="choice-sub">колата е основен транспорт</span>
+        </button>
+        <button class="choice-btn" data-q="transport" data-v="pt">
+          <span class="choice-label">Публичен транспорт</span>
+          <span class="choice-sub">предпочитам влак или автобус</span>
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── SCREEN: RESULTS ──────────────────────────────────────── -->
+  <section id="screen-results" class="screen" aria-label="Резултати">
+
+    <div class="results-header">
+      <p class="results-summary" id="results-summary"></p>
+    </div>
+
+    <!-- Toggles -->
+    <div class="toggles-row" role="group" aria-label="Филтри и сортиране">
+      <div class="toggle-group" role="group" aria-label="Крайбрежни квартали">
+        <button class="toggle-btn active" data-toggle="coastal" data-v="all">Покажи всички</button>
+        <button class="toggle-btn" data-toggle="coastal" data-v="coastal">Само крайбрежни</button>
+      </div>
+      <div class="toggle-group" role="group" aria-label="Сортиране">
+        <button class="toggle-btn active" data-toggle="sort" data-v="affordability">По-нисък наем</button>
+        <button class="toggle-btn" data-toggle="sort" data-v="proximity">Близост до центъра</button>
+      </div>
+    </div>
+
+    <!-- NOR/SOR chips -->
+    <div class="nor-sor-filters" role="group" aria-label="Северно / Южно от реката">
+      <button class="filter-chip active" data-nor="all">Покажи: Всички</button>
+      <button class="filter-chip" data-nor="nor">Северно от реката</button>
+      <button class="filter-chip" data-nor="sor">Южно от реката</button>
+      <button class="filter-chip" data-nor="central">Централно</button>
+    </div>
+
+    <!-- Rent banner — above cards -->
+    <div class="rent-banner" role="note" id="rent-banner-el"></div>
+
+    <!-- Cards -->
+    <div id="cards-container" aria-live="polite" aria-label="Препоръчани квартали"></div>
+    <div class="empty-state" id="empty-state">Няма квартали, отговарящи на избраните филтри.</div>
+
+    <!-- Load more -->
+    <div class="load-more-wrap">
+      <button class="btn-load-more hidden" id="btn-load-more">Покажи повече квартали</button>
+    </div>
+
+    <!-- Restart -->
+    <div class="restart-row">
+      <p class="disclaimer" id="result-disclaimer"></p>
+      <button class="btn-restart" id="btn-restart">← Започни отначало</button>
+    </div>
+
+  </section>
+
+</div><!-- /.app -->
+
+<!-- ─── GoatCounter (replace YOURCODE) ──────────────────────── -->
+<script data-goatcounter="https://emigratetoaustralia.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
+<!-- ─── DATA + LOGIC ─────────────────────────────────────────── -->
+<script src="suburbs.js"></script>
+<script src="quiz.js"></script>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────
+// SHA-256 of the unlock code.
+// Replace this hash before launch; rotate annually with rent refresh.
+const CODE_HASH = "9e01ef4760aad3db59a3eecd7829f7536c85617e04861683fe3fd28dc71080cc";
+
+const VISIBLE_DEFAULT = 5;
+
+// ─── STATE ───────────────────────────────────────────────────
+const state = {
+  unlocked:     false,
+  answers:      { budget: null, character: null, transport: null },
+  currentQ:     1,
+  basePool:     [],    // result of runQuiz() — never mutated
+  visibleCount: VISIBLE_DEFAULT,
+  coastal:      "all",
+  sort:         "proximity",
+  norSor:       "all",
+};
+
+// ─── GOATCOUNTER HELPER ───────────────────────────────────────
+function track(event, value) {
+  if (window.goatcounter && goatcounter.count) {
+    goatcounter.count({ path: event, title: value || "", event: true });
+  }
+}
+
+// ─── SHA-256 HASH ────────────────────────────────────────────
+async function sha256(str) {
+  const buf = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(str)
+  );
+  return Array.from(new Uint8Array(buf))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+// ─── SCREEN MANAGER ──────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + id).classList.add("active");
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+(function init() {
+  // Check persisted unlock
+  if (localStorage.getItem("pss_unlocked") === "1") {
+    state.unlocked = true;
+  }
+
+  // Seed static content
+  document.getElementById("result-disclaimer").textContent = RESULT_DISCLAIMER;
+  document.getElementById("rent-banner-el").textContent    = RENT_BANNER;
+
+  // ── Start button — always goes straight to quiz
+  document.getElementById("btn-start").addEventListener("click", () => {
+    track("quiz-start");
+    showScreen("quiz");
+  });
+
+  // ── Unlock form
+  document.getElementById("btn-unlock").addEventListener("click", handleUnlock);
+  document.getElementById("code-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") handleUnlock();
+  });
+
+  // ── Quiz choices (event delegation)
+  document.getElementById("screen-quiz").addEventListener("click", e => {
+    const btn = e.target.closest(".choice-btn");
+    if (!btn) return;
+    handleChoice(btn.dataset.q, btn.dataset.v);
+  });
+
+  // ── Toggle buttons
+  document.querySelectorAll("[data-toggle]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const toggle = btn.dataset.toggle;
+      const val    = btn.dataset.v;
+      btn.closest(".toggle-group")
+         .querySelectorAll(".toggle-btn")
+         .forEach(b => b.classList.toggle("active", b === btn));
+      if (toggle === "coastal") state.coastal = val;
+      if (toggle === "sort")    state.sort    = val;
+      state.visibleCount = VISIBLE_DEFAULT;
+      renderCards();
+    });
+  });
+
+  // ── NOR/SOR chips
+  document.querySelectorAll(".filter-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".filter-chip")
+              .forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      state.norSor = chip.dataset.nor;
+      state.visibleCount = VISIBLE_DEFAULT;
+      renderCards();
+    });
+  });
+
+  // ── Load more
+  document.getElementById("btn-load-more").addEventListener("click", () => {
+    state.visibleCount = getDisplayPool().length;
+    renderCards();
+  });
+
+  // ── Restart
+  document.getElementById("btn-restart").addEventListener("click", restart);
+})();
+
+// ─── UNLOCK ──────────────────────────────────────────────────
+async function handleUnlock() {
+  const raw   = document.getElementById("code-input").value.trim().toUpperCase();
+  const input = document.getElementById("code-input");
+  const error = document.getElementById("gate-error");
+
+  const hash = await sha256(raw);
+
+  if (hash === CODE_HASH) {
+    localStorage.setItem("pss_unlocked", "1");
+    state.unlocked = true;
+    track("code-unlock-success");
+    input.classList.remove("error");
+    error.classList.remove("visible");
+    // Results are already computed — go straight there
+    showResultsScreen();
+  } else {
+    track("code-unlock-fail");
+    input.classList.add("error");
+    error.classList.add("visible");
+    setTimeout(() => input.classList.remove("error"), 600);
+  }
+}
+
+// ─── QUIZ FLOW ───────────────────────────────────────────────
+function handleChoice(question, value) {
+  state.answers[question] = value;
+
+  document.querySelectorAll(`[data-q="${question}"]`)
+          .forEach(b => b.classList.toggle("selected", b.dataset.v === value));
+
+  setTimeout(() => {
+    if (state.currentQ < 3) {
+      advanceQuestion();
+    } else {
+      finishQuiz();
+    }
+  }, 280);
+}
+
+function advanceQuestion() {
+  const current = document.getElementById("q" + state.currentQ);
+  const next    = document.getElementById("q" + (state.currentQ + 1));
+
+  current.classList.remove("active");
+  next.classList.add("active");
+  state.currentQ++;
+  updateProgress();
+}
+
+function updateProgress() {
+  document.querySelectorAll(".progress-pip").forEach((pip, i) => {
+    const step = i + 1;
+    pip.classList.toggle("done",   step < state.currentQ);
+    pip.classList.toggle("active", step === state.currentQ);
+  });
+  document.querySelector(".quiz-progress")
+          .setAttribute("aria-valuenow", state.currentQ);
+}
+
+function finishQuiz() {
+  const { budget, character, transport } = state.answers;
+  const comboString = `${budget}|${character}|${transport}`;
+  track("quiz-complete", comboString);
+
+  // Compute results now regardless of lock state
+  state.basePool     = runQuiz(budget, character, transport);
+  state.visibleCount = VISIBLE_DEFAULT;
+  state.coastal      = "all";
+  state.sort         = "affordability";
+  state.norSor       = "all";
+
+  if (!state.unlocked) {
+    // Show gate with suburb count as payoff
+    const count     = state.basePool.length;
+    const countWord = count === 1 ? "квартал" : "квартала";
+    document.getElementById("gate-count").textContent = `${count} ${countWord}`;
+    document.getElementById("code-input").value = "";
+    document.getElementById("gate-error").classList.remove("visible");
+    showScreen("gate");
+  } else {
+    showResultsScreen();
+  }
+}
+
+// ─── SHOW RESULTS (shared by finishQuiz and handleUnlock) ────
+function showResultsScreen() {
+  const { budget, character, transport } = state.answers;
+
+  // Reset toggle UI to defaults
+  document.querySelectorAll("[data-toggle]").forEach(btn => {
+    btn.classList.toggle("active",
+      (btn.dataset.toggle === "coastal"  && btn.dataset.v === "all") ||
+      (btn.dataset.toggle === "sort"     && btn.dataset.v === "affordability")
+    );
+  });
+  document.querySelectorAll(".filter-chip").forEach(c => {
+    c.classList.toggle("active", c.dataset.nor === "all");
+  });
+
+  // Answer summary
+  const budgetLabel    = budget    === "below" ? "под $750/сед."        : "над $750/сед.";
+  const charLabel      = character === "quiet" ? "тихо"                 : "оживено";
+  const transportLabel = transport === "car"   ? "с кола"               : "с публичен транспорт";
+  const count          = state.basePool.length;
+  const countWord      = count === 1 ? "квартал" : "квартала";
+
+  document.getElementById("results-summary").innerHTML =
+    `${count} ${countWord} за: <strong>${budgetLabel}</strong> · <strong>${charLabel}</strong> · <strong>${transportLabel}</strong>`;
+
+  renderCards();
+  showScreen("results");
+}
+
+// ─── DISPLAY POOL (toggles + NOR/SOR applied) ────────────────
+function getDisplayPool() {
+  let pool = applyToggles(state.basePool, state.coastal, state.sort);
+  if (state.norSor !== "all") {
+    pool = pool.filter(s => s.nor_sor === state.norSor);
+  }
+  return pool;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────
+function renderCards() {
+  const pool      = getDisplayPool();
+  const container = document.getElementById("cards-container");
+  const emptyEl   = document.getElementById("empty-state");
+  const loadBtn   = document.getElementById("btn-load-more");
+
+  container.innerHTML = "";
+
+  if (pool.length === 0) {
+    emptyEl.classList.add("visible");
+    loadBtn.classList.add("hidden");
+    return;
+  }
+  emptyEl.classList.remove("visible");
+
+  const visible = pool.slice(0, state.visibleCount);
+
+  visible.forEach((suburb, idx) => {
+  const card = buildCard(suburb, idx);
+  container.appendChild(card);
+});
+setTimeout(() => {
+  visible.forEach((suburb, idx) => {
+    setTimeout(() => track("suburb-shown", suburb.id), idx * 350);
+  });
+}, 1000);
+
+  const hasMore = pool.length > state.visibleCount;
+  loadBtn.classList.toggle("hidden", !hasMore);
+  if (hasMore) {
+    const remaining = pool.length - state.visibleCount;
+    loadBtn.textContent = `Покажи още ${remaining} ${remaining === 1 ? "квартал" : "квартала"}`;
+  }
+}
+
+// ─── CARD BUILDER ────────────────────────────────────────────
+function buildCard(suburb, index) {
+  const card = document.createElement("article");
+  card.className = "suburb-card";
+  card.style.animationDelay = (index * 60) + "ms";
+  card.setAttribute("aria-label", suburb.name);
+
+  const ptClass = { good: "badge-pt-good", moderate: "badge-pt-moderate", car: "badge-pt-car" }[suburb.pt];
+  const ptLabel = PT_LABELS[suburb.pt];
+
+  const norClass = { nor: "badge-nor", sor: "badge-sor", central: "badge-central" }[suburb.nor_sor];
+  const norLabel = NOR_SOR_LABELS[suburb.nor_sor];
+
+  const rent3 = formatRent(suburb.rent_3br, "3br");
+  const rent4 = formatRent(suburb.rent_4br, "4br");
+
+  const ptNote = (suburb.pt === "moderate" || suburb.pt === "car")
+    ? `<p class="card-pt-note">${PT_CAVEATS[suburb.pt]}</p>`
+    : "";
+
+  card.innerHTML = `
+    <div class="card-header">
+      <h3 class="card-name">${suburb.name}</h3>
+      <div class="card-badges">
+        <span class="badge ${ptClass}">${ptLabel}</span>
+        <span class="badge ${norClass}">${norLabel}</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="card-description">${suburb.description}</p>
+      <div class="card-rent">
+        ${rent3}
+        ${rent4}
+        <p class="rent-disclaimer">${RENT_INLINE_DISCLAIMER}</p>
+      </div>
+      <p class="card-caveat">${suburb.caveat}</p>
+      ${ptNote}
+    </div>
+    <footer class="card-footer">
+      <span class="card-cbd">${suburb.cbd_km} км от центъра</span>
+    </footer>
+  `;
+
+  return card;
+}
+
+function formatRent(rentObj, label) {
+  const heading = label === "3br" ? "Къща с 3 спални" : "Къща с 4 спални";
+  if (rentObj.sparse) {
+    const sparseText = label === "3br" ? SPARSE_LABELS["3br"] : SPARSE_LABELS["4br"];
+    return `
+      <div class="rent-item">
+        <p class="rent-label">${heading}</p>
+        <p class="rent-sparse">${sparseText}</p>
+      </div>`;
+  }
+  if (rentObj.floor === null) {
+    return `
+      <div class="rent-item">
+        <p class="rent-label">${heading}</p>
+        <p class="rent-sparse">${SPARSE_LABELS[label]}</p>
+      </div>`;
+  }
+  return `
+    <div class="rent-item">
+      <p class="rent-label">${heading}</p>
+      <p class="rent-value">$${rentObj.floor}–${rentObj.ceiling}/сед.</p>
+    </div>`;
+}
+
+// ─── RESTART ─────────────────────────────────────────────────
+function restart() {
+  state.answers   = { budget: null, character: null, transport: null };
+  state.currentQ  = 1;
+  state.basePool  = [];
+
+  document.querySelectorAll(".question-block").forEach((b, i) => {
+    b.classList.toggle("active", i === 0);
+  });
+  document.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("selected"));
+  updateProgress();
+
+  showScreen("quiz");
+}
+</script>
+</body>
+</html>
