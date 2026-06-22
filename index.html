@@ -315,6 +315,24 @@
   40%,80%  { transform: translateX(6px); }
 }
 
+/* ── Theme toggle icons ─────────────────────────────────── */
+/*
+  Light mode  → show moon  (click to go dark)
+  Dark mode   → show sun   (click to go light)
+  Default (no data-theme, relies on OS): mirror OS state.
+*/
+.theme-icon { display: none; }
+
+/* Light mode (explicit or default root) */
+:root:not([data-theme="dark"]) .theme-icon--moon { display: block; }
+/* Dark mode (explicit) */
+:root[data-theme="dark"] .theme-icon--sun { display: block; }
+/* OS dark, no explicit override */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-icon--sun  { display: block; }
+  :root:not([data-theme="light"]) .theme-icon--moon { display: none;  }
+}
+
 /* ── Header logo mark ───────────────────────────────────── */
 .pwa-header__logo-mark {
   width: 32px;
@@ -338,6 +356,24 @@
         <span class="pwa-header__app-name">Емигрирай в Австралия</span>
         <span class="pwa-header__sub">Намери квартала си в Пърт</span>
       </div>
+      <button class="pwa-header__icon-btn" id="btn-theme" aria-label="Превключи тема">
+        <!-- Sun icon (shown in dark mode) -->
+        <svg class="theme-icon theme-icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <!-- Moon icon (shown in light mode) -->
+        <svg class="theme-icon theme-icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
     </div>
   </header>
 
@@ -583,6 +619,18 @@ function showScreen(id) {
 
   document.getElementById("result-disclaimer").textContent = RESULT_DISCLAIMER;
   document.getElementById("rent-banner-el").textContent    = RENT_BANNER;
+
+  // Theme toggle
+  document.getElementById("btn-theme").addEventListener("click", () => {
+    const html    = document.documentElement;
+    const current = html.getAttribute("data-theme");
+    // Resolve effective theme (fall back to OS preference when no override)
+    const isDark  = current === "dark" ||
+                    (!current && matchMedia("(prefers-color-scheme: dark)").matches);
+    const next    = isDark ? "light" : "dark";
+    html.setAttribute("data-theme", next);
+    localStorage.setItem("ea-theme", next);
+  });
 
   document.getElementById("btn-start").addEventListener("click", () => {
     track("quiz-start");
