@@ -342,6 +342,74 @@
   border-radius: var(--radius-pill);
   flex-shrink: 0;
 }
+/* ── Responsive: tablet (≥ 640px) ──────────────────────── */
+@media (min-width: 640px) {
+  .pwa-shell { max-width: none; }
+
+  .pwa-header__inner,
+  .pwa-body {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pwa-body {
+    padding-left: var(--space-8);   /* 48px */
+    padding-right: var(--space-8);
+  }
+}
+
+/* ── Responsive: desktop (≥ 1024px) ────────────────────── */
+@media (min-width: 1024px) {
+  .pwa-body {
+    padding-left: var(--space-9);   /* 64px */
+    padding-right: var(--space-9);
+  }
+
+  .pwa-header__inner {
+    padding-left: var(--space-9);
+    padding-right: var(--space-9);
+  }
+
+  /* Constrain single-column screens for readability */
+  #screen-intro,
+  #screen-gate,
+  #screen-quiz {
+    max-width: 640px;
+  }
+
+  /* Results screen: full-width layout */
+  #screen-results {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: auto;
+    column-gap: var(--space-8);
+    align-items: start;
+  }
+
+  /* Left sidebar: filters */
+  .results-header   { grid-column: 1 / -1; }
+  .toggles-row      { grid-column: 1; grid-row: 2; flex-direction: column; align-items: stretch; margin-bottom: 0; }
+  .nor-sor-filters  { grid-column: 1; grid-row: 3; flex-direction: column; align-items: flex-start; margin-bottom: 0; }
+  .rent-banner      { grid-column: 2; grid-row: 2; margin-bottom: 0; }
+
+  /* Cards: 2-column grid in right column */
+  #cards-container  { grid-column: 2; grid-row: 3 / span 3; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+
+  /* Empty state and load more stay in right column */
+  #empty-state      { grid-column: 2; grid-row: 4; }
+  .load-more-wrap   { grid-column: 2; grid-row: 6; }
+  .restart-row      { grid-column: 1 / -1; }
+
+  /* Cards stretch to fill grid cells */
+  .suburb-card      { display: flex; flex-direction: column; }
+  .card-footer      { margin-top: auto; }
+
+  /* Sidebar toggle group: full width */
+  .toggle-group     { flex-direction: column; border-radius: var(--radius-md); }
+  .toggle-btn       { text-align: left; }
+  .chip             { width: 100%; justify-content: flex-start; }
+}
 </style>
 </head>
 
