@@ -3,813 +3,545 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#0d0d0d" />
+<meta name="theme-color" content="#FF8000" />
 <title>Намери квартала си в Пърт</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+<!-- Prevent FOUC on manual theme toggle -->
+<script>const t = localStorage.getItem('ea-theme'); if (t) document.documentElement.setAttribute('data-theme', t);</script>
+
+<link rel="stylesheet" href="design_system_new.css" />
 
 <style>
-/* ─── RESET & BASE ─────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --orange:  #ff8000;
-  --blue:    #0252a3;
-  --red:     #990300;
-  --green:   #01a34f;
-  --bg:      #0d0d0d;
-  --surface: #161616;
-  --card:    #1c1c1c;
-  --border:  #2a2a2a;
-  --text:    #f0ede8;
-  --muted:   #888880;
-  --subtle:  #444440;
-  --font-display: 'Syne', sans-serif;
-  --font-body:    'DM Sans', sans-serif;
-  --radius: 12px;
-  --radius-sm: 8px;
-}
-
-html { font-size: 16px; scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-weight: 300;
-  line-height: 1.6;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ─── LAYOUT ───────────────────────────────────────────────── */
-.app {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 0 20px 80px;
-}
-
-/* ─── HEADER ───────────────────────────────────────────────── */
-.site-header {
-  padding: 40px 0 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.site-header .logo-mark {
-  width: 36px;
-  height: 36px;
-  background: var(--orange);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.site-header .logo-text {
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* ─── SCREENS ──────────────────────────────────────────────── */
+/* ── Screen transitions ─────────────────────────────────── */
 .screen { display: none; animation: fadeUp 0.4s ease both; }
 .screen.active { display: block; }
-
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── INTRO SCREEN ─────────────────────────────────────────── */
-#screen-intro { padding-top: 48px; }
+/* ── Question blocks (quiz) ─────────────────────────────── */
+.question-block { display: none; animation: fadeUp 0.35s ease both; }
+.question-block.active { display: block; padding-top: var(--space-6); }
 
-.intro-eyebrow {
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 16px;
+/* ── Choice grid ────────────────────────────────────────── */
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
 }
+@media (max-width: 420px) { .choice-grid { grid-template-columns: 1fr; } }
 
-.intro-heading {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 7vw, 3.2rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--text);
-  margin-bottom: 24px;
+/* ── NOR/SOR chip colour overrides ─────────────────────── */
+.filter-chip[data-nor="nor"].chip--active {
+  background: rgba(2,82,163,0.12);
+  border-color: var(--brand-blue);
+  color: var(--brand-blue);
 }
-
-.intro-heading em {
-  font-style: normal;
-  color: var(--orange);
+.filter-chip[data-nor="sor"].chip--active {
+  background: rgba(153,3,0,0.12);
+  border-color: var(--danger);
+  color: var(--danger);
 }
-
-.intro-body {
-  font-size: 1.05rem;
-  color: var(--muted);
-  max-width: 520px;
-  margin-bottom: 40px;
-  line-height: 1.7;
+.filter-chip[data-nor="central"].chip--active {
+  background: var(--bg-inset);
+  border-color: var(--border-strong);
+  color: var(--fg-primary);
 }
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--orange);
-  color: #000;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 16px 32px;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+@media (prefers-color-scheme: dark) {
+  .filter-chip[data-nor="nor"].chip--active { color: #7aaddc; border-color: #7aaddc; background: rgba(2,82,163,0.20); }
+  .filter-chip[data-nor="sor"].chip--active { color: #d97a7a; border-color: #d97a7a; background: rgba(153,3,0,0.20); }
 }
+:root[data-theme="dark"] .filter-chip[data-nor="nor"].chip--active { color: #7aaddc; border-color: #7aaddc; background: rgba(2,82,163,0.20); }
+:root[data-theme="dark"] .filter-chip[data-nor="sor"].chip--active { color: #d97a7a; border-color: #d97a7a; background: rgba(153,3,0,0.20); }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(255,128,0,0.35);
-}
-
-.btn-primary svg { flex-shrink: 0; }
-
-/* ─── GATE SCREEN ──────────────────────────────────────────── */
-#screen-gate { padding-top: 48px; }
-
-.gate-eyebrow {
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 16px;
-}
-
-.gate-heading {
-  font-family: var(--font-display);
-  font-size: clamp(1.6rem, 5vw, 2.4rem);
-  font-weight: 800;
-  line-height: 1.15;
-  margin-bottom: 16px;
-}
-
-.gate-heading em {
-  font-style: normal;
-  color: var(--orange);
-}
-
-.gate-body {
-  font-size: 1rem;
-  color: var(--muted);
-  margin-bottom: 32px;
-  line-height: 1.7;
-  max-width: 500px;
-}
-
-.gate-body a {
-  color: var(--orange);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255,128,0,0.4);
-  padding-bottom: 1px;
-  transition: border-color 0.2s;
-}
-.gate-body a:hover { border-color: var(--orange); }
-
-.code-form {
+/* ── Toggle group (coastal / sort) ─────────────────────── */
+.toggle-group {
   display: flex;
-  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--fg-secondary);
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  transition: background var(--dur-fast), color var(--dur-fast);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.toggle-btn.active {
+  background: var(--brand-orange);
+  color: #fff;
+  font-weight: 600;
+}
+.toggles-row {
+  display: flex;
   flex-wrap: wrap;
-  align-items: stretch;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  align-items: center;
+}
+.nor-sor-filters {
+  margin-bottom: var(--space-4);
 }
 
-.code-input {
+/* ── Suburb card ────────────────────────────────────────── */
+.suburb-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  animation: fadeUp 0.35s ease both;
+  transition: border-color var(--dur-base), box-shadow var(--dur-base);
+}
+.suburb-card:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-md);
+}
+.card-header {
+  padding: var(--space-5) var(--space-5) 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.card-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-primary);
+  line-height: var(--lh-snug);
+  margin: 0;
+}
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  display: inline-block;
+}
+.badge-nor     { background: rgba(2,82,163,0.12);  color: var(--brand-blue);  border: 1px solid rgba(2,82,163,0.3); }
+.badge-sor     { background: rgba(153,3,0,0.12);   color: var(--danger);      border: 1px solid rgba(153,3,0,0.3); }
+.badge-central { background: var(--bg-inset);       color: var(--fg-tertiary); border: 1px solid var(--border-default); }
+.badge-pt-good     { background: var(--green-50);           color: var(--brand-green);  border: 1px solid rgba(1,163,79,0.3); }
+.badge-pt-moderate { background: var(--orange-50);          color: var(--orange-700);   border: 1px solid rgba(255,128,0,0.3); }
+.badge-pt-car      { background: rgba(153,3,0,0.10);        color: var(--danger);       border: 1px solid rgba(153,3,0,0.25); }
+
+@media (prefers-color-scheme: dark) {
+  .badge-nor     { color: #7aaddc; }
+  .badge-sor     { color: #d97a7a; }
+  .badge-pt-good { background: rgba(1,163,79,0.15); color: var(--green-300); }
+  .badge-pt-moderate { background: rgba(255,128,0,0.15); color: var(--orange-300); }
+  .badge-pt-car  { color: #d97a7a; }
+}
+:root[data-theme="dark"] .badge-nor     { color: #7aaddc; }
+:root[data-theme="dark"] .badge-sor     { color: #d97a7a; }
+:root[data-theme="dark"] .badge-pt-good { background: rgba(1,163,79,0.15); color: var(--green-300); }
+:root[data-theme="dark"] .badge-pt-moderate { background: rgba(255,128,0,0.15); color: var(--orange-300); }
+:root[data-theme="dark"] .badge-pt-car  { color: #d97a7a; }
+
+.card-body { padding: var(--space-4) var(--space-5) 0; }
+.card-description {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-secondary);
+  margin-bottom: var(--space-4);
+}
+.card-rent {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.rent-label {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fg-tertiary);
+  margin-bottom: var(--space-1);
+}
+.rent-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-body-sm);
+  font-weight: 700;
+  color: var(--fg-primary);
+}
+.rent-sparse {
+  font-size: var(--fs-caption);
+  color: var(--fg-tertiary);
+  font-style: italic;
+}
+.rent-disclaimer {
+  font-size: var(--fs-micro);
+  color: var(--fg-tertiary);
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.card-caveat {
+  font-size: var(--fs-caption);
+  color: var(--fg-secondary);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-inset);
+  border-left: 3px solid var(--brand-orange);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: var(--lh-relaxed);
+  margin: 0;
+}
+.card-pt-note {
+  font-size: var(--fs-caption);
+  color: var(--fg-secondary);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-inset);
+  border-left: 3px solid var(--border-strong);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: var(--lh-relaxed);
+  margin-top: var(--space-2);
+}
+.card-footer {
+  padding: var(--space-3) var(--space-5) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.card-cbd {
+  font-size: var(--fs-caption);
+  color: var(--fg-tertiary);
+}
+#cards-container { display: flex; flex-direction: column; gap: var(--space-4); }
+
+/* ── Results summary ────────────────────────────────────── */
+.results-header { margin-bottom: var(--space-4); }
+.results-summary {
+  font-size: var(--fs-caption);
+  color: var(--fg-secondary);
+  line-height: var(--lh-relaxed);
+}
+.results-summary strong { color: var(--fg-primary); font-weight: 600; }
+
+/* ── Rent banner ────────────────────────────────────────── */
+.rent-banner {
+  background: var(--orange-50);
+  border: 1px solid rgba(255,128,0,0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-caption);
+  color: var(--orange-700);
+  margin-bottom: var(--space-5);
+  line-height: var(--lh-relaxed);
+}
+@media (prefers-color-scheme: dark) {
+  .rent-banner { background: rgba(255,128,0,0.10); color: var(--orange-300); }
+}
+:root[data-theme="dark"] .rent-banner { background: rgba(255,128,0,0.10); color: var(--orange-300); }
+:root[data-theme="light"] .rent-banner { background: var(--orange-50); color: var(--orange-700); }
+
+/* ── Empty state (override design-system default display) ─ */
+.empty-state { display: none; }
+.empty-state.visible { display: flex; }
+
+/* ── Load more ──────────────────────────────────────────── */
+.load-more-wrap { text-align: center; margin-top: var(--space-5); }
+
+/* ── Restart ────────────────────────────────────────────── */
+.restart-row {
+  text-align: center;
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+}
+.btn-restart {
+  background: none;
+  border: none;
+  color: var(--fg-tertiary);
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--border-strong);
+}
+.btn-restart:hover { color: var(--fg-primary); }
+
+/* ── Gate error ─────────────────────────────────────────── */
+.gate-error {
+  font-size: var(--fs-caption);
+  color: var(--danger);
+  opacity: 0;
+  transition: opacity 0.2s;
+  min-height: 1.4em;
+  margin-top: var(--space-2);
+}
+.gate-error.visible { opacity: 1; }
+
+/* ── Code input shake ───────────────────────────────────── */
+.code-form { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: flex-start; }
+.code-form .input {
   flex: 1;
   min-width: 200px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 1rem;
-  padding: 14px 18px;
-  outline: none;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  transition: border-color 0.2s;
 }
-
-.code-input::placeholder { color: var(--subtle); letter-spacing: 0.05em; text-transform: none; }
-.code-input:focus { border-color: var(--orange); }
-
-.code-input.error { border-color: var(--red); animation: shake 0.4s ease; }
-
+.code-form .input.error {
+  border-color: var(--danger);
+  animation: shake 0.4s ease;
+}
 @keyframes shake {
   0%,100% { transform: translateX(0); }
   20%,60%  { transform: translateX(-6px); }
   40%,80%  { transform: translateX(6px); }
 }
 
-.btn-unlock {
-  background: var(--orange);
-  color: #000;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 14px 28px;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.btn-unlock:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(255,128,0,0.3); }
-
-.gate-error {
-  margin-top: 14px;
-  font-size: 0.875rem;
-  color: var(--red);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.gate-error.visible { opacity: 1; }
-
-/* ─── QUIZ SCREEN ──────────────────────────────────────────── */
-#screen-quiz { padding-top: 48px; }
-
-.quiz-progress {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 48px;
-}
-
-.progress-pip {
-  height: 3px;
-  flex: 1;
-  background: var(--border);
-  border-radius: 2px;
-  transition: background 0.3s ease;
-}
-.progress-pip.done { background: var(--orange); }
-.progress-pip.active { background: var(--orange); opacity: 0.5; }
-
-.question-block { display: none; animation: fadeUp 0.35s ease both; }
-.question-block.active { display: block; }
-
-.question-label {
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 12px;
-}
-
-.question-text {
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 4.5vw, 2rem);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  margin-bottom: 32px;
-  color: var(--text);
-}
-
-.choice-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-@media (max-width: 420px) { .choice-grid { grid-template-columns: 1fr; } }
-
-.choice-btn {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 400;
-  padding: 20px 18px;
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.18s, background 0.18s, transform 0.15s;
-  line-height: 1.4;
-}
-
-.choice-btn .choice-label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 4px;
-  font-size: 1rem;
-}
-
-.choice-btn .choice-sub {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.choice-btn:hover {
-  border-color: var(--orange);
-  background: rgba(255,128,0,0.06);
-  transform: translateY(-2px);
-}
-
-.choice-btn.selected {
-  border-color: var(--orange);
-  background: rgba(255,128,0,0.1);
-}
-
-/* ─── RESULTS SCREEN ───────────────────────────────────────── */
-#screen-results { padding-top: 40px; }
-
-.results-header { margin-bottom: 24px; }
-
-.results-summary {
-  font-size: 0.8rem;
-  color: var(--muted);
-  letter-spacing: 0.03em;
-  line-height: 1.5;
-}
-
-.results-summary strong {
-  color: var(--text);
-  font-weight: 500;
-}
-
-.rent-banner {
-  background: rgba(255,128,0,0.08);
-  border: 1px solid rgba(255,128,0,0.2);
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  font-size: 0.82rem;
-  color: var(--muted);
-  margin-bottom: 28px;
-  line-height: 1.5;
-}
-
-/* ─── TOGGLES ──────────────────────────────────────────────── */
-.toggles-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 28px;
-  align-items: center;
-}
-
-.toggle-group {
-  display: flex;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.toggle-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 400;
-  padding: 8px 14px;
-  cursor: pointer;
-  transition: background 0.18s, color 0.18s;
-  white-space: nowrap;
-}
-
-.toggle-btn.active {
-  background: var(--orange);
-  color: #000;
-  font-weight: 500;
-}
-
-.nor-sor-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 28px;
-}
-
-.filter-chip {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  padding: 6px 14px;
-  cursor: pointer;
-  transition: all 0.18s;
-}
-
-.filter-chip.active {
-  background: rgba(2,82,163,0.2);
-  border-color: var(--blue);
-  color: #7aaddc;
-}
-
-.filter-chip[data-nor="nor"].active  { background: rgba(2,82,163,0.15); border-color: #0252a3; color: #7aaddc; }
-.filter-chip[data-nor="sor"].active  { background: rgba(153,3,0,0.15);  border-color: #990300; color: #d97a7a; }
-.filter-chip[data-nor="central"].active { background: rgba(255,255,255,0.08); border-color: #666; color: var(--text); }
-
-/* ─── SUBURB CARDS ─────────────────────────────────────────── */
-#cards-container { display: flex; flex-direction: column; gap: 18px; }
-
-.suburb-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  animation: fadeUp 0.35s ease both;
-  transition: border-color 0.2s;
-}
-
-.suburb-card:hover { border-color: var(--subtle); }
-
-.card-header {
-  padding: 20px 20px 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.card-name {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.card-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+/* ── Header logo mark ───────────────────────────────────── */
+.pwa-header__logo-mark {
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.25);
+  border: 2px solid rgba(255,255,255,0.5);
+  border-radius: var(--radius-pill);
   flex-shrink: 0;
-}
-
-.badge {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 4px 9px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.badge-nor  { background: rgba(2,82,163,0.18);  color: #7aaddc; border: 1px solid rgba(2,82,163,0.3); }
-.badge-sor  { background: rgba(153,3,0,0.18);   color: #d97a7a; border: 1px solid rgba(153,3,0,0.3); }
-.badge-central { background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid var(--border); }
-
-.badge-pt-good     { background: rgba(1,163,79,0.15); color: #5ed49a; border: 1px solid rgba(1,163,79,0.3); }
-.badge-pt-moderate { background: rgba(255,180,0,0.12); color: #f0c060; border: 1px solid rgba(255,180,0,0.3); }
-.badge-pt-car      { background: rgba(153,3,0,0.12); color: #d97a7a; border: 1px solid rgba(153,3,0,0.25); }
-
-.card-body { padding: 16px 20px 0; }
-
-.card-description {
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: #ccc8c0;
-  margin-bottom: 16px;
-}
-
-.card-rent {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-  margin-bottom: 14px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.rent-item {}
-.rent-label {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-
-.rent-value {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text);
-  line-height: 1.3;
-}
-
-.rent-sparse {
-  font-size: 0.78rem;
-  color: var(--muted);
-  font-style: italic;
-}
-
-.rent-disclaimer {
-  font-size: 0.72rem;
-  color: var(--subtle);
-  margin-top: 8px;
-  grid-column: 1 / -1;
-}
-
-.card-caveat {
-  font-size: 0.82rem;
-  color: var(--muted);
-  padding: 12px 14px;
-  background: rgba(255,255,255,0.03);
-  border-left: 2px solid var(--orange);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  line-height: 1.6;
-  margin-bottom: 0;
-}
-
-.card-pt-note {
-  font-size: 0.8rem;
-  color: var(--muted);
-  padding: 10px 14px;
-  background: rgba(255,255,255,0.02);
-  border-left: 2px solid var(--subtle);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  line-height: 1.6;
-  margin-top: 10px;
-}
-
-.card-footer {
-  padding: 14px 20px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.card-cbd {
-  font-size: 0.75rem;
-  color: var(--subtle);
-}
-
-/* ─── EMPTY STATE ──────────────────────────────────────────── */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--muted);
-  font-size: 0.95rem;
-  display: none;
-}
-.empty-state.visible { display: block; }
-
-/* ─── LOAD MORE ────────────────────────────────────────────── */
-.load-more-wrap {
-  text-align: center;
-  margin-top: 28px;
-}
-
-.btn-load-more {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  padding: 12px 28px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-.btn-load-more:hover { border-color: var(--orange); color: var(--orange); }
-.btn-load-more.hidden { display: none; }
-
-/* ─── RESTART ──────────────────────────────────────────────── */
-.restart-row {
-  text-align: center;
-  margin-top: 48px;
-  padding-top: 32px;
-  border-top: 1px solid var(--border);
-}
-
-.disclaimer {
-  font-size: 0.78rem;
-  color: var(--subtle);
-  font-style: italic;
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-
-.btn-restart {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--subtle);
-}
-.btn-restart:hover { color: var(--text); }
-
-/* ─── UTILITY ──────────────────────────────────────────────── */
-.sr-only {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
 </style>
 </head>
 
 <body>
-<div class="app">
+<div class="pwa-shell">
 
   <!-- HEADER -->
-  <header class="site-header">
-    <div class="logo-mark" aria-hidden="true"></div>
-    <span class="logo-text">Емигрирай в Австралия</span>
+  <header class="pwa-header">
+    <div class="pwa-header__inner">
+      <div class="pwa-header__logo-mark" aria-hidden="true"></div>
+      <div class="pwa-header__title">
+        <span class="pwa-header__app-name">Емигрирай в Австралия</span>
+        <span class="pwa-header__sub">Намери квартала си в Пърт</span>
+      </div>
+    </div>
   </header>
 
-  <!-- ── SCREEN: INTRO ───────────────────────────────────────── -->
-  <section id="screen-intro" class="screen active" aria-label="Начален екран">
-    <p class="intro-eyebrow">Намери квартала си в Пърт</p>
-    <h1 class="intro-heading">Кой квартал<br>е <em>твоят</em>?</h1>
-    <p class="intro-body">
-      Три въпроса. Препоръки, базирани на реален бюджет,
-      транспорт и начин на живот — от човек, живеещ в Пърт от 2012 г.
-    </p>
-    <button class="btn-primary" id="btn-start">
-      Започни
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-  </section>
+  <main class="pwa-body">
 
-  <!-- ── SCREEN: PATREON GATE ────────────────────────────────── -->
-  <section id="screen-gate" class="screen" aria-label="Отключи резултатите">
-    <p class="gate-eyebrow">Почти е готово</p>
-    <h2 class="gate-heading" id="gate-heading">Намерихме <em id="gate-count">—</em> за теб.</h2>
-    <p class="gate-body">
-      Инструментът е безплатен за членове в
-      <a href="https://www.patreon.com/posts/perth-suburb-za-159034245" target="_blank" rel="noopener">Patreon</a>
-      (безплатно ниво). Влез в профила си, намери
-      <a href="https://www.patreon.com/posts/perth-suburb-za-159034245" target="_blank" rel="noopener">публикацията „Perth Suburb Selector"</a>
-      и въведи кода от нея.
-    </p>
-    <div class="code-form">
-      <input
-        type="text"
-        id="code-input"
-        class="code-input"
-        placeholder="Въведи кода"
-        maxlength="20"
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
-        aria-label="Код за достъп"
-      />
-      <button class="btn-unlock" id="btn-unlock">Отключи</button>
-    </div>
-    <p class="gate-error" id="gate-error" role="alert">Невалиден код. Провери отново.</p>
-  </section>
+    <!-- ── SCREEN: INTRO ─────────────────────────────────── -->
+    <section id="screen-intro" class="screen active" aria-label="Начален екран">
+      <p class="quiz-step__indicator">Намери квартала си в Пърт</p>
+      <h1 style="font-family: var(--font-display); font-size: clamp(2rem, 7vw, var(--fs-h1)); font-weight: 800; color: var(--fg-primary); line-height: var(--lh-snug); letter-spacing: var(--tracking-tight); margin: var(--space-3) 0 var(--space-5);">
+        Кой квартал<br>е <span style="color: var(--brand-orange);">твоят</span>?
+      </h1>
+      <p style="font-size: var(--fs-body-sm); color: var(--fg-secondary); max-width: 500px; line-height: var(--lh-relaxed); margin-bottom: var(--space-6);">
+        Три въпроса. Препоръки, базирани на реален бюджет,
+        транспорт и начин на живот — от човек, живеещ в Пърт от 2012 г.
+      </p>
+      <button class="btn btn--primary btn--lg" id="btn-start">
+        Започни
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </section>
 
-  <!-- ── SCREEN: QUIZ ─────────────────────────────────────────── -->
-  <section id="screen-quiz" class="screen" aria-label="Въпросник">
-
-    <div class="quiz-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-label="Прогрес на въпросника">
-      <div class="progress-pip active" data-step="1"></div>
-      <div class="progress-pip" data-step="2"></div>
-      <div class="progress-pip" data-step="3"></div>
-    </div>
-
-    <!-- Q1: Budget -->
-    <div class="question-block active" id="q1">
-      <p class="question-label">Въпрос 1 от 3</p>
-      <h2 class="question-text">Какъв е бюджетът ти за наем?</h2>
-      <div class="choice-grid">
-        <button class="choice-btn" data-q="budget" data-v="below">
-          <span class="choice-label">Под медианата</span>
-          <span class="choice-sub">под $750/седмица за 3-стаен</span>
-        </button>
-        <button class="choice-btn" data-q="budget" data-v="above">
-          <span class="choice-label">Над медианата</span>
-          <span class="choice-sub">$750/седмица и повече</span>
-        </button>
+    <!-- ── SCREEN: PATREON GATE ──────────────────────────── -->
+    <section id="screen-gate" class="screen" aria-label="Отключи резултатите">
+      <p class="quiz-step__indicator">Почти е готово</p>
+      <h2 style="font-family: var(--font-display); font-size: clamp(1.6rem, 5vw, var(--fs-h2)); font-weight: 800; color: var(--fg-primary); line-height: var(--lh-snug); letter-spacing: var(--tracking-tight); margin: var(--space-3) 0 var(--space-4);" id="gate-heading">
+        Намерихме <span style="color: var(--brand-orange);" id="gate-count">—</span> за теб.
+      </h2>
+      <p style="font-size: var(--fs-body-sm); color: var(--fg-secondary); line-height: var(--lh-relaxed); max-width: 500px; margin-bottom: var(--space-5);">
+        Инструментът е безплатен за членове в
+        <a href="https://www.patreon.com/posts/perth-suburb-za-159034245" target="_blank" rel="noopener" style="color: var(--link);">Patreon</a>
+        (безплатно ниво). Влез в профила си, намери
+        <a href="https://www.patreon.com/posts/perth-suburb-za-159034245" target="_blank" rel="noopener" style="color: var(--link);">публикацията „Perth Suburb Selector"</a>
+        и въведи кода от нея.
+      </p>
+      <div class="code-form">
+        <input
+          type="text"
+          id="code-input"
+          class="input"
+          placeholder="Въведи кода"
+          maxlength="20"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          aria-label="Код за достъп"
+        />
+        <button class="btn btn--primary" id="btn-unlock">Отключи</button>
       </div>
-    </div>
+      <p class="gate-error" id="gate-error" role="alert">Невалиден код. Провери отново.</p>
+    </section>
 
-    <!-- Q2: Character -->
-    <div class="question-block" id="q2">
-      <p class="question-label">Въпрос 2 от 3</p>
-      <h2 class="question-text">Какъв квартален характер търсиш?</h2>
-      <div class="choice-grid">
-        <button class="choice-btn" data-q="character" data-v="quiet">
-          <span class="choice-label">Тихо</span>
-          <span class="choice-sub">спокоен, семеен, зелен</span>
-        </button>
-        <button class="choice-btn" data-q="character" data-v="lively">
-          <span class="choice-label">Оживено</span>
-          <span class="choice-sub">кафенета, ресторанти, хора</span>
-        </button>
+    <!-- ── SCREEN: QUIZ ──────────────────────────────────── -->
+    <section id="screen-quiz" class="screen" aria-label="Въпросник">
+
+      <div class="phase-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-label="Прогрес на въпросника">
+        <div class="phase-progress__bar">
+          <div class="phase-progress__segment phase-progress__segment--active" data-step="1"></div>
+          <div class="phase-progress__segment" data-step="2"></div>
+          <div class="phase-progress__segment" data-step="3"></div>
+        </div>
       </div>
-    </div>
 
-    <!-- Q3: Transport -->
-    <div class="question-block" id="q3">
-      <p class="question-label">Въпрос 3 от 3</p>
-      <h2 class="question-text">Как планираш да се придвижваш?</h2>
-      <div class="choice-grid">
-        <button class="choice-btn" data-q="transport" data-v="car">
-          <span class="choice-label">Имам кола</span>
-          <span class="choice-sub">колата е основен транспорт</span>
-        </button>
-        <button class="choice-btn" data-q="transport" data-v="pt">
-          <span class="choice-label">Публичен транспорт</span>
-          <span class="choice-sub">предпочитам влак или автобус</span>
-        </button>
+      <!-- Q1: Budget -->
+      <div class="question-block active" id="q1">
+        <p class="quiz-step__indicator">Въпрос <em>1</em> от 3</p>
+        <h2 class="quiz-step__question">Какъв е бюджетът ти за наем?</h2>
+        <div class="choice-grid" style="margin-top: var(--space-5);">
+          <button class="quiz-option" data-q="budget" data-v="below">
+            <div class="quiz-option__dot"></div>
+            <div class="quiz-option__text">
+              <span class="quiz-option__label">Под медианата</span>
+              <span class="quiz-option__sub">под $750/седмица за 3-стаен</span>
+            </div>
+          </button>
+          <button class="quiz-option" data-q="budget" data-v="above">
+            <div class="quiz-option__dot"></div>
+            <div class="quiz-option__text">
+              <span class="quiz-option__label">Над медианата</span>
+              <span class="quiz-option__sub">$750/седмица и повече</span>
+            </div>
+          </button>
+        </div>
       </div>
-    </div>
 
-  </section>
-
-  <!-- ── SCREEN: RESULTS ──────────────────────────────────────── -->
-  <section id="screen-results" class="screen" aria-label="Резултати">
-
-    <div class="results-header">
-      <p class="results-summary" id="results-summary"></p>
-    </div>
-
-    <!-- Toggles -->
-    <div class="toggles-row" role="group" aria-label="Филтри и сортиране">
-      <div class="toggle-group" role="group" aria-label="Крайбрежни квартали">
-        <button class="toggle-btn active" data-toggle="coastal" data-v="all">Покажи всички</button>
-        <button class="toggle-btn" data-toggle="coastal" data-v="coastal">Само крайбрежни</button>
+      <!-- Q2: Character -->
+      <div class="question-block" id="q2">
+        <p class="quiz-step__indicator">Въпрос <em>2</em> от 3</p>
+        <h2 class="quiz-step__question">Какъв квартален характер търсиш?</h2>
+        <div class="choice-grid" style="margin-top: var(--space-5);">
+          <button class="quiz-option" data-q="character" data-v="quiet">
+            <div class="quiz-option__dot"></div>
+            <div class="quiz-option__text">
+              <span class="quiz-option__label">Тихо</span>
+              <span class="quiz-option__sub">спокоен, семеен, зелен</span>
+            </div>
+          </button>
+          <button class="quiz-option" data-q="character" data-v="lively">
+            <div class="quiz-option__dot"></div>
+            <div class="quiz-option__text">
+              <span class="quiz-option__label">Оживено</span>
+              <span class="quiz-option__sub">кафенета, ресторанти, хора</span>
+            </div>
+          </button>
+        </div>
       </div>
-      <div class="toggle-group" role="group" aria-label="Сортиране">
-        <button class="toggle-btn active" data-toggle="sort" data-v="affordability">По-нисък наем</button>
-        <button class="toggle-btn" data-toggle="sort" data-v="proximity">Близост до центъра</button>
+
+      <!-- Q3: Transport -->
+      <div class="question-block" id="q3">
+        <p class="quiz-step__indicator">Въпрос <em>3</em> от 3</p>
+        <h2 class="quiz-step__question">Как планираш да се придвижваш?</h2>
+        <div class="choice-grid" style="margin-top: var(--space-5);">
+          <button class="quiz-option" data-q="transport" data-v="car">
+            <div class="quiz-option__dot"></div>
+            <div class="quiz-option__text">
+              <span class="quiz-option__label">Имам кола</span>
+              <span class="quiz-option__sub">колата е основен транспорт</span>
+            </div>
+          </button>
+          <button class="quiz-option" data-q="transport" data-v="pt">
+            <div class="quiz-option__dot"></div>
+            <div class="quiz-option__text">
+              <span class="quiz-option__label">Публичен транспорт</span>
+              <span class="quiz-option__sub">предпочитам влак или автобус</span>
+            </div>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- NOR/SOR chips -->
-    <div class="nor-sor-filters" role="group" aria-label="Северно / Южно от реката">
-      <button class="filter-chip active" data-nor="all">Покажи: Всички</button>
-      <button class="filter-chip" data-nor="nor">Северно от реката</button>
-      <button class="filter-chip" data-nor="sor">Южно от реката</button>
-      <button class="filter-chip" data-nor="central">Централно</button>
-    </div>
+    </section>
 
-    <!-- Rent banner — above cards -->
-    <div class="rent-banner" role="note" id="rent-banner-el"></div>
+    <!-- ── SCREEN: RESULTS ───────────────────────────────── -->
+    <section id="screen-results" class="screen" aria-label="Резултати">
 
-    <!-- Cards -->
-    <div id="cards-container" aria-live="polite" aria-label="Препоръчани квартали"></div>
-    <div class="empty-state" id="empty-state">Няма квартали, отговарящи на избраните филтри.</div>
+      <div class="results-header">
+        <p class="results-summary" id="results-summary"></p>
+      </div>
 
-    <!-- Load more -->
-    <div class="load-more-wrap">
-      <button class="btn-load-more hidden" id="btn-load-more">Покажи повече квартали</button>
-    </div>
+      <!-- Sort / coastal toggles -->
+      <div class="toggles-row" role="group" aria-label="Филтри и сортиране">
+        <div class="toggle-group" role="group" aria-label="Крайбрежни квартали">
+          <button class="toggle-btn active" data-toggle="coastal" data-v="all">Покажи всички</button>
+          <button class="toggle-btn" data-toggle="coastal" data-v="coastal">Само крайбрежни</button>
+        </div>
+        <div class="toggle-group" role="group" aria-label="Сортиране">
+          <button class="toggle-btn active" data-toggle="sort" data-v="affordability">По-нисък наем</button>
+          <button class="toggle-btn" data-toggle="sort" data-v="proximity">Близост до центъра</button>
+        </div>
+      </div>
 
-    <!-- Restart -->
-    <div class="restart-row">
-      <p class="disclaimer" id="result-disclaimer"></p>
-      <button class="btn-restart" id="btn-restart">← Започни отначало</button>
-    </div>
+      <!-- NOR / SOR chips -->
+      <div class="chip-group nor-sor-filters" role="group" aria-label="Северно / Южно от реката">
+        <button class="chip filter-chip chip--active" data-nor="all">Покажи: Всички</button>
+        <button class="chip filter-chip" data-nor="nor">Северно от реката</button>
+        <button class="chip filter-chip" data-nor="sor">Южно от реката</button>
+        <button class="chip filter-chip" data-nor="central">Централно</button>
+      </div>
 
-  </section>
+      <!-- Rent notice banner -->
+      <div class="rent-banner" role="note" id="rent-banner-el"></div>
 
-</div><!-- /.app -->
+      <!-- Cards -->
+      <div id="cards-container" aria-live="polite" aria-label="Препоръчани квартали"></div>
 
-<!-- ─── GoatCounter (replace YOURCODE) ──────────────────────── -->
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-state__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </div>
+        <h3 class="empty-state__title">Няма резултати</h3>
+        <p class="empty-state__desc">Няма квартали, отговарящи на избраните филтри.</p>
+      </div>
+
+      <!-- Load more -->
+      <div class="load-more-wrap">
+        <button class="btn btn--ghost hidden" id="btn-load-more">Покажи повече квартали</button>
+      </div>
+
+      <!-- Restart -->
+      <div class="restart-row">
+        <p class="disclaimer" id="result-disclaimer"></p>
+        <button class="btn-restart" id="btn-restart">← Започни отначало</button>
+      </div>
+
+    </section>
+
+  </main>
+
+</div><!-- /.pwa-shell -->
+
+<!-- Analytics -->
 <script data-goatcounter="https://emigratetoaustralia.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
-<!-- ─── DATA + LOGIC ─────────────────────────────────────────── -->
+<!-- Data + Logic -->
 <script src="suburbs.js"></script>
 <script src="quiz.js"></script>
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────
-// SHA-256 of the unlock code.
-// Replace this hash before launch; rotate annually with rent refresh.
 const CODE_HASH = "9e01ef4760aad3db59a3eecd7829f7536c85617e04861683fe3fd28dc71080cc";
-
 const VISIBLE_DEFAULT = 5;
 
 // ─── STATE ───────────────────────────────────────────────────
@@ -817,29 +549,24 @@ const state = {
   unlocked:     false,
   answers:      { budget: null, character: null, transport: null },
   currentQ:     1,
-  basePool:     [],    // result of runQuiz() — never mutated
+  basePool:     [],
   visibleCount: VISIBLE_DEFAULT,
   coastal:      "all",
   sort:         "proximity",
   norSor:       "all",
 };
 
-// ─── GOATCOUNTER HELPER ───────────────────────────────────────
+// ─── GOATCOUNTER ─────────────────────────────────────────────
 function track(event, value) {
   if (window.goatcounter && goatcounter.count) {
     goatcounter.count({ path: event, title: value || "", event: true });
   }
 }
 
-// ─── SHA-256 HASH ────────────────────────────────────────────
+// ─── SHA-256 ──────────────────────────────────────────────────
 async function sha256(str) {
-  const buf = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(str)
-  );
-  return Array.from(new Uint8Array(buf))
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
 // ─── SCREEN MANAGER ──────────────────────────────────────────
@@ -850,35 +577,31 @@ function showScreen(id) {
 
 // ─── INIT ────────────────────────────────────────────────────
 (function init() {
-  // Check persisted unlock
   if (localStorage.getItem("pss_unlocked") === "1") {
     state.unlocked = true;
   }
 
-  // Seed static content
   document.getElementById("result-disclaimer").textContent = RESULT_DISCLAIMER;
   document.getElementById("rent-banner-el").textContent    = RENT_BANNER;
 
-  // ── Start button — always goes straight to quiz
   document.getElementById("btn-start").addEventListener("click", () => {
     track("quiz-start");
     showScreen("quiz");
   });
 
-  // ── Unlock form
   document.getElementById("btn-unlock").addEventListener("click", handleUnlock);
   document.getElementById("code-input").addEventListener("keydown", e => {
     if (e.key === "Enter") handleUnlock();
   });
 
-  // ── Quiz choices (event delegation)
+  // Quiz choices — event delegation
   document.getElementById("screen-quiz").addEventListener("click", e => {
-    const btn = e.target.closest(".choice-btn");
+    const btn = e.target.closest(".quiz-option");
     if (!btn) return;
     handleChoice(btn.dataset.q, btn.dataset.v);
   });
 
-  // ── Toggle buttons
+  // Sort / coastal toggles
   document.querySelectorAll("[data-toggle]").forEach(btn => {
     btn.addEventListener("click", () => {
       const toggle = btn.dataset.toggle;
@@ -893,25 +616,23 @@ function showScreen(id) {
     });
   });
 
-  // ── NOR/SOR chips
+  // NOR/SOR chips
   document.querySelectorAll(".filter-chip").forEach(chip => {
     chip.addEventListener("click", () => {
       document.querySelectorAll(".filter-chip")
-              .forEach(c => c.classList.remove("active"));
-      chip.classList.add("active");
+              .forEach(c => c.classList.remove("chip--active"));
+      chip.classList.add("chip--active");
       state.norSor = chip.dataset.nor;
       state.visibleCount = VISIBLE_DEFAULT;
       renderCards();
     });
   });
 
-  // ── Load more
   document.getElementById("btn-load-more").addEventListener("click", () => {
     state.visibleCount = getDisplayPool().length;
     renderCards();
   });
 
-  // ── Restart
   document.getElementById("btn-restart").addEventListener("click", restart);
 })();
 
@@ -929,7 +650,6 @@ async function handleUnlock() {
     track("code-unlock-success");
     input.classList.remove("error");
     error.classList.remove("visible");
-    // Results are already computed — go straight there
     showResultsScreen();
   } else {
     track("code-unlock-fail");
@@ -944,7 +664,7 @@ function handleChoice(question, value) {
   state.answers[question] = value;
 
   document.querySelectorAll(`[data-q="${question}"]`)
-          .forEach(b => b.classList.toggle("selected", b.dataset.v === value));
+          .forEach(b => b.classList.toggle("quiz-option--selected", b.dataset.v === value));
 
   setTimeout(() => {
     if (state.currentQ < 3) {
@@ -958,7 +678,6 @@ function handleChoice(question, value) {
 function advanceQuestion() {
   const current = document.getElementById("q" + state.currentQ);
   const next    = document.getElementById("q" + (state.currentQ + 1));
-
   current.classList.remove("active");
   next.classList.add("active");
   state.currentQ++;
@@ -966,12 +685,12 @@ function advanceQuestion() {
 }
 
 function updateProgress() {
-  document.querySelectorAll(".progress-pip").forEach((pip, i) => {
+  document.querySelectorAll(".phase-progress__segment").forEach((seg, i) => {
     const step = i + 1;
-    pip.classList.toggle("done",   step < state.currentQ);
-    pip.classList.toggle("active", step === state.currentQ);
+    seg.classList.toggle("phase-progress__segment--done",   step < state.currentQ);
+    seg.classList.toggle("phase-progress__segment--active", step === state.currentQ);
   });
-  document.querySelector(".quiz-progress")
+  document.querySelector(".phase-progress")
           .setAttribute("aria-valuenow", state.currentQ);
 }
 
@@ -980,7 +699,6 @@ function finishQuiz() {
   const comboString = `${budget}|${character}|${transport}`;
   track("quiz-complete", comboString);
 
-  // Compute results now regardless of lock state
   state.basePool     = runQuiz(budget, character, transport);
   state.visibleCount = VISIBLE_DEFAULT;
   state.coastal      = "all";
@@ -988,7 +706,6 @@ function finishQuiz() {
   state.norSor       = "all";
 
   if (!state.unlocked) {
-    // Show gate with suburb count as payoff
     const count     = state.basePool.length;
     const countWord = count === 1 ? "квартал" : "квартала";
     document.getElementById("gate-count").textContent = `${count} ${countWord}`;
@@ -1000,25 +717,23 @@ function finishQuiz() {
   }
 }
 
-// ─── SHOW RESULTS (shared by finishQuiz and handleUnlock) ────
+// ─── SHOW RESULTS ────────────────────────────────────────────
 function showResultsScreen() {
   const { budget, character, transport } = state.answers;
 
-  // Reset toggle UI to defaults
   document.querySelectorAll("[data-toggle]").forEach(btn => {
     btn.classList.toggle("active",
-      (btn.dataset.toggle === "coastal"  && btn.dataset.v === "all") ||
-      (btn.dataset.toggle === "sort"     && btn.dataset.v === "affordability")
+      (btn.dataset.toggle === "coastal" && btn.dataset.v === "all") ||
+      (btn.dataset.toggle === "sort"    && btn.dataset.v === "affordability")
     );
   });
   document.querySelectorAll(".filter-chip").forEach(c => {
-    c.classList.toggle("active", c.dataset.nor === "all");
+    c.classList.toggle("chip--active", c.dataset.nor === "all");
   });
 
-  // Answer summary
-  const budgetLabel    = budget    === "below" ? "под $750/сед."        : "над $750/сед.";
-  const charLabel      = character === "quiet" ? "тихо"                 : "оживено";
-  const transportLabel = transport === "car"   ? "с кола"               : "с публичен транспорт";
+  const budgetLabel    = budget    === "below" ? "под $750/сед."       : "над $750/сед.";
+  const charLabel      = character === "quiet" ? "тихо"                : "оживено";
+  const transportLabel = transport === "car"   ? "с кола"              : "с публичен транспорт";
   const count          = state.basePool.length;
   const countWord      = count === 1 ? "квартал" : "квартала";
 
@@ -1029,7 +744,7 @@ function showResultsScreen() {
   showScreen("results");
 }
 
-// ─── DISPLAY POOL (toggles + NOR/SOR applied) ────────────────
+// ─── DISPLAY POOL ────────────────────────────────────────────
 function getDisplayPool() {
   let pool = applyToggles(state.basePool, state.coastal, state.sort);
   if (state.norSor !== "all") {
@@ -1057,14 +772,14 @@ function renderCards() {
   const visible = pool.slice(0, state.visibleCount);
 
   visible.forEach((suburb, idx) => {
-  const card = buildCard(suburb, idx);
-  container.appendChild(card);
-});
-setTimeout(() => {
-  visible.forEach((suburb, idx) => {
-    setTimeout(() => track("suburb-shown", suburb.id), idx * 350);
+    const card = buildCard(suburb, idx);
+    container.appendChild(card);
   });
-}, 1000);
+  setTimeout(() => {
+    visible.forEach((suburb, idx) => {
+      setTimeout(() => track("suburb-shown", suburb.id), idx * 350);
+    });
+  }, 1000);
 
   const hasMore = pool.length > state.visibleCount;
   loadBtn.classList.toggle("hidden", !hasMore);
@@ -1153,7 +868,7 @@ function restart() {
   document.querySelectorAll(".question-block").forEach((b, i) => {
     b.classList.toggle("active", i === 0);
   });
-  document.querySelectorAll(".choice-btn").forEach(b => b.classList.remove("selected"));
+  document.querySelectorAll(".quiz-option").forEach(b => b.classList.remove("quiz-option--selected"));
   updateProgress();
 
   showScreen("quiz");
