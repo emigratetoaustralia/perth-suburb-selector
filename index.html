@@ -354,7 +354,7 @@
   }
 
   .pwa-body {
-    padding-left: var(--space-8);   /* 48px */
+    padding-left: var(--space-8);
     padding-right: var(--space-8);
   }
 }
@@ -362,7 +362,7 @@
 /* ── Responsive: desktop (≥ 1024px) ────────────────────── */
 @media (min-width: 1024px) {
   .pwa-body {
-    padding-left: var(--space-9);   /* 64px */
+    padding-left: var(--space-9);
     padding-right: var(--space-9);
   }
 
@@ -371,44 +371,81 @@
     padding-right: var(--space-9);
   }
 
-  /* Constrain single-column screens for readability */
+  /* Single-column screens: constrain for comfortable reading width */
   #screen-intro,
   #screen-gate,
   #screen-quiz {
     max-width: 640px;
   }
 
-  /* Results screen: full-width layout */
-  #screen-results {
+  /*
+   * Results screen: two-panel layout.
+   * Use a wrapper div inside the section so .screen.active {display:block}
+   * doesn't override the grid — the grid is on the inner wrapper.
+   */
+  .results-layout {
     display: grid;
-    grid-template-columns: 260px 1fr;
-    grid-template-rows: auto;
-    column-gap: var(--space-8);
+    grid-template-columns: 220px 1fr;
+    column-gap: var(--space-7);
     align-items: start;
   }
 
-  /* Left sidebar: filters */
-  .results-header   { grid-column: 1 / -1; }
-  .toggles-row      { grid-column: 1; grid-row: 2; flex-direction: column; align-items: stretch; margin-bottom: 0; }
-  .nor-sor-filters  { grid-column: 1; grid-row: 3; flex-direction: column; align-items: flex-start; margin-bottom: 0; }
-  .rent-banner      { grid-column: 2; grid-row: 2; margin-bottom: 0; }
+  /* Sidebar column */
+  .results-sidebar {
+    position: sticky;
+    top: calc(var(--pwa-header-height) + var(--space-5));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
 
-  /* Cards: 2-column grid in right column */
-  #cards-container  { grid-column: 2; grid-row: 3 / span 3; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .results-sidebar .results-header  { margin-bottom: 0; }
+  .results-sidebar .toggles-row     { flex-direction: column; align-items: stretch; gap: var(--space-3); margin-bottom: 0; }
+  .results-sidebar .nor-sor-filters { flex-direction: column; align-items: stretch; margin-bottom: 0; }
+  .results-sidebar .filter-chip     { width: 100%; justify-content: flex-start; }
 
-  /* Empty state and load more stay in right column */
-  #empty-state      { grid-column: 2; grid-row: 4; }
-  .load-more-wrap   { grid-column: 2; grid-row: 6; }
-  .restart-row      { grid-column: 1 / -1; }
+  /* Toggle group stacked vertically — remove overflow:hidden so border-radius applies per button */
+  .results-sidebar .toggle-group {
+    flex-direction: column;
+    overflow: visible;
+    border-radius: var(--radius-md);
+    gap: 2px;
+    background: transparent;
+    border: none;
+  }
+  .results-sidebar .toggle-btn {
+    text-align: left;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+  }
+  .results-sidebar .toggle-btn.active {
+    border-color: var(--brand-orange);
+  }
 
-  /* Cards stretch to fill grid cells */
-  .suburb-card      { display: flex; flex-direction: column; }
-  .card-footer      { margin-top: auto; }
+  /* Main column */
+  .results-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+  }
 
-  /* Sidebar toggle group: full width */
-  .toggle-group     { flex-direction: column; border-radius: var(--radius-md); }
-  .toggle-btn       { text-align: left; }
-  .chip             { width: 100%; justify-content: flex-start; }
+  /* Cards: 2-column grid */
+  .results-main #cards-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  /* Cards equal height */
+  .suburb-card  { display: flex; flex-direction: column; }
+  .card-footer  { margin-top: auto; }
+
+  /* Restart spans full width below both columns */
+  .results-layout > .restart-row {
+    grid-column: 1 / -1;
+  }
 }
 </style>
 </head>
@@ -581,49 +618,64 @@
         <p class="results-summary" id="results-summary"></p>
       </div>
 
-      <!-- Sort / coastal toggles -->
-      <div class="toggles-row" role="group" aria-label="Филтри и сортиране">
-        <div class="toggle-group" role="group" aria-label="Крайбрежни квартали">
-          <button class="toggle-btn active" data-toggle="coastal" data-v="all">Покажи всички</button>
-          <button class="toggle-btn" data-toggle="coastal" data-v="coastal">Само крайбрежни</button>
-        </div>
-        <div class="toggle-group" role="group" aria-label="Сортиране">
-          <button class="toggle-btn active" data-toggle="sort" data-v="affordability">По-нисък наем</button>
-          <button class="toggle-btn" data-toggle="sort" data-v="proximity">Близост до центъра</button>
-        </div>
-      </div>
+      <!-- Two-panel wrapper — grid activates at ≥1024px via .results-layout -->
+      <div class="results-layout">
 
-      <!-- NOR / SOR chips -->
-      <div class="chip-group nor-sor-filters" role="group" aria-label="Северно / Южно от реката">
-        <button class="chip filter-chip chip--active" data-nor="all">Покажи: Всички</button>
-        <button class="chip filter-chip" data-nor="nor">Северно от реката</button>
-        <button class="chip filter-chip" data-nor="sor">Южно от реката</button>
-        <button class="chip filter-chip" data-nor="central">Централно</button>
-      </div>
+        <!-- Sidebar: filters (desktop) / inline strip (mobile) -->
+        <aside class="results-sidebar">
 
-      <!-- Rent notice banner -->
-      <div class="rent-banner" role="note" id="rent-banner-el"></div>
+          <!-- Sort / coastal toggles -->
+          <div class="toggles-row" role="group" aria-label="Филтри и сортиране">
+            <div class="toggle-group" role="group" aria-label="Крайбрежни квартали">
+              <button class="toggle-btn active" data-toggle="coastal" data-v="all">Покажи всички</button>
+              <button class="toggle-btn" data-toggle="coastal" data-v="coastal">Само крайбрежни</button>
+            </div>
+            <div class="toggle-group" role="group" aria-label="Сортиране">
+              <button class="toggle-btn active" data-toggle="sort" data-v="affordability">По-нисък наем</button>
+              <button class="toggle-btn" data-toggle="sort" data-v="proximity">Близост до центъра</button>
+            </div>
+          </div>
 
-      <!-- Cards -->
-      <div id="cards-container" aria-live="polite" aria-label="Препоръчани квартали"></div>
+          <!-- NOR / SOR chips -->
+          <div class="chip-group nor-sor-filters" role="group" aria-label="Северно / Южно от реката">
+            <button class="chip filter-chip chip--active" data-nor="all">Покажи: Всички</button>
+            <button class="chip filter-chip" data-nor="nor">Северно от реката</button>
+            <button class="chip filter-chip" data-nor="sor">Южно от реката</button>
+            <button class="chip filter-chip" data-nor="central">Централно</button>
+          </div>
 
-      <!-- Empty state -->
-      <div class="empty-state" id="empty-state">
-        <div class="empty-state__icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-        </div>
-        <h3 class="empty-state__title">Няма резултати</h3>
-        <p class="empty-state__desc">Няма квартали, отговарящи на избраните филтри.</p>
-      </div>
+        </aside><!-- /.results-sidebar -->
 
-      <!-- Load more -->
-      <div class="load-more-wrap">
-        <button class="btn btn--ghost hidden" id="btn-load-more">Покажи повече квартали</button>
-      </div>
+        <!-- Main: cards -->
+        <div class="results-main">
 
-      <!-- Restart -->
+          <!-- Rent notice banner -->
+          <div class="rent-banner" role="note" id="rent-banner-el"></div>
+
+          <!-- Cards -->
+          <div id="cards-container" aria-live="polite" aria-label="Препоръчани квартали"></div>
+
+          <!-- Empty state -->
+          <div class="empty-state" id="empty-state">
+            <div class="empty-state__icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </div>
+            <h3 class="empty-state__title">Няма резултати</h3>
+            <p class="empty-state__desc">Няма квартали, отговарящи на избраните филтри.</p>
+          </div>
+
+          <!-- Load more -->
+          <div class="load-more-wrap">
+            <button class="btn btn--ghost hidden" id="btn-load-more">Покажи повече квартали</button>
+          </div>
+
+        </div><!-- /.results-main -->
+
+      </div><!-- /.results-layout -->
+
+      <!-- Restart always spans full width -->
       <div class="restart-row">
         <p class="disclaimer" id="result-disclaimer"></p>
         <button class="btn-restart" id="btn-restart">← Започни отначало</button>
