@@ -108,8 +108,8 @@
 .card-header {
   padding: var(--space-5) var(--space-5) 0;
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
   gap: var(--space-3);
 }
 .card-name {
@@ -120,12 +120,15 @@
   color: var(--fg-primary);
   line-height: var(--lh-snug);
   margin: 0;
+  /* Allow long single-word names to break instead of overflowing */
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 .card-badges {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-  flex-shrink: 0;
+  max-width: 100%;
 }
 .badge {
   font-size: 10px;
@@ -371,11 +374,13 @@
     padding-right: var(--space-9);
   }
 
-  /* Single-column screens: constrain for comfortable reading width */
+  /* Single-column screens: constrain + centre for comfortable reading width */
   #screen-intro,
   #screen-gate,
   #screen-quiz {
     max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   /*
@@ -385,7 +390,7 @@
    */
   .results-layout {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 240px 1fr;
     column-gap: var(--space-7);
     align-items: start;
   }
@@ -396,28 +401,59 @@
     top: calc(var(--pwa-header-height) + var(--space-5));
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-5);
   }
 
-  /* Stack the two toggle groups and the NOR/SOR chips vertically */
+  /* Stack the toggle groups and the NOR/SOR chips vertically */
   .results-sidebar .toggles-row {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--space-2);
+    gap: var(--space-5);
     margin-bottom: 0;
   }
   .results-sidebar .nor-sor-filters {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--space-2);
     margin-bottom: 0;
   }
 
-  /* Toggle group stays horizontal (side-by-side buttons) but fills sidebar width */
-  .results-sidebar .toggle-group { width: 100%; }
-  .results-sidebar .toggle-btn   { flex: 1; text-align: center; }
+  /*
+   * Each toggle group becomes a vertical stack of full-width buttons,
+   * so long Bulgarian labels are never clipped. Drop the segmented-control
+   * chrome (shared border/overflow) and give each button its own outline.
+   */
+  .results-sidebar .toggle-group {
+    flex-direction: column;
+    overflow: visible;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    gap: var(--space-2);
+  }
+  .results-sidebar .toggle-btn {
+    width: 100%;
+    text-align: left;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    white-space: normal;
+  }
+  .results-sidebar .toggle-btn.active {
+    background: var(--brand-orange);
+    border-color: var(--brand-orange);
+    color: #fff;
+  }
 
   /* NOR/SOR chips fill sidebar width */
-  .results-sidebar .filter-chip  { width: 100%; justify-content: flex-start; }
+  .results-sidebar .filter-chip {
+    width: 100%;
+    justify-content: flex-start;
+    white-space: normal;
+    height: auto;
+    min-height: 34px;
+  }
 
   /* Main column */
   .results-main {
@@ -437,13 +473,6 @@
   /* Cards equal height */
   .suburb-card { display: flex; flex-direction: column; }
   .card-footer { margin-top: auto; }
-
-  /* Card header: wrap badges below name on narrow cards */
-  .card-header {
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-  .card-badges { flex-shrink: 1; }
 
   /* Restart spans full width below both columns */
   .results-layout > .restart-row {
