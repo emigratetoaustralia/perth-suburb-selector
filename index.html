@@ -318,49 +318,116 @@
   40%,80%  { transform: translateX(6px); }
 }
 
-/* ── Theme toggle icons ─────────────────────────────────── */
-/*
-  Light mode  → show moon  (click to go dark)
-  Dark mode   → show sun   (click to go light)
-  Default (no data-theme, relies on OS): mirror OS state.
-*/
-.theme-icon { display: none; }
+/* ── Wizard top bar ─────────────────────────────────────── */
+#wizard-top {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  width: 100%;
+  box-sizing: border-box;
+}
+.top-bar-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+#top-bar-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+#app-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--fg-primary);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#app-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--fs-micro);
+  color: var(--fg-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--fg-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.back-btn:hover { color: var(--fg-primary); }
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--fg-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-toggle:hover { color: var(--fg-primary); }
 
-/* Light mode (explicit or default root) */
-:root:not([data-theme="dark"]) .theme-icon--moon { display: block; }
-/* Dark mode (explicit) */
-:root[data-theme="dark"] .theme-icon--sun { display: block; }
-/* OS dark, no explicit override */
+/* ── Progress bar ───────────────────────────────────────── */
+#progress-bar {
+  height: 3px;
+  background: var(--border-default);
+  width: 100%;
+}
+:root[data-theme="dark"] #progress-bar { background: #3A3531; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-icon--sun  { display: block; }
-  :root:not([data-theme="light"]) .theme-icon--moon { display: none;  }
+  :root:not([data-theme="light"]) #progress-bar { background: #3A3531; }
+}
+#progress-fill {
+  height: 100%;
+  background: var(--brand-orange);
+  width: 0%;
+  transition: width 0.3s ease;
 }
 
 /* ── Responsive: tablet (≥ 640px) ──────────────────────── */
 @media (min-width: 640px) {
   .pwa-shell { max-width: none; }
 
-  .pwa-header__inner,
   .pwa-body {
     max-width: 1280px;
     margin-left: auto;
     margin-right: auto;
-  }
-
-  .pwa-body {
     padding-left: var(--space-8);
     padding-right: var(--space-8);
   }
 }
 
+/* ── Responsive: desktop (≥ 900px) ─────────────────────── */
+@media (min-width: 900px) {
+  #wizard-top { padding: 12px 48px; }
+}
+
 /* ── Responsive: desktop (≥ 1024px) ────────────────────── */
 @media (min-width: 1024px) {
   .pwa-body {
-    padding-left: var(--space-9);
-    padding-right: var(--space-9);
-  }
-
-  .pwa-header__inner {
     padding-left: var(--space-9);
     padding-right: var(--space-9);
   }
@@ -389,7 +456,7 @@
   /* Sidebar: sticky column of filter controls */
   .results-sidebar {
     position: sticky;
-    top: calc(var(--pwa-header-height) + var(--space-5));
+    top: calc(56px + var(--space-5));
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
@@ -474,36 +541,24 @@
 </head>
 
 <body>
-<div class="pwa-shell">
 
-  <!-- HEADER -->
-  <header class="pwa-header">
-    <div class="pwa-header__inner">
-      <img src="EA.png" alt="Емигрирай в Австралия" class="pwa-header__logo" />
-      <div class="pwa-header__title">
-        <span class="pwa-header__app-name">Намери квартала си в Пърт</span>
-        <span class="pwa-header__sub">Емигрирай в Австралия</span>
-      </div>
-      <button class="pwa-header__icon-btn" id="btn-theme" aria-label="Превключи тема">
-        <!-- Sun icon (shown in dark mode) -->
-        <svg class="theme-icon theme-icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="1" x2="12" y2="3"/>
-          <line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/>
-          <line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
-        <!-- Moon icon (shown in light mode) -->
-        <svg class="theme-icon theme-icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-      </button>
-    </div>
-  </header>
+<!-- Top bar (full viewport width, sticky) -->
+<div id="wizard-top">
+  <button class="back-btn" id="btn-back" aria-label="Назад" style="visibility:hidden">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+  </button>
+  <img src="EA.png" alt="Емигрирай в Австралия" class="top-bar-logo" />
+  <div id="top-bar-text">
+    <span id="app-title">Намери квартала си в Пърт</span>
+    <span id="app-subtitle">Емигрирай в Австралия</span>
+  </div>
+  <button class="theme-toggle" id="btn-theme" aria-label="Превключи тема"></button>
+</div>
+<div id="progress-bar"><div id="progress-fill"></div></div>
+
+<div class="pwa-shell">
 
   <main class="pwa-body">
 
@@ -710,6 +765,7 @@
 
 </div><!-- /.pwa-shell -->
 
+
 <!-- Analytics -->
 <script data-goatcounter="https://emigratetoaustralia.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
@@ -763,17 +819,7 @@ function showScreen(id) {
   document.getElementById("result-disclaimer").textContent = RESULT_DISCLAIMER;
   document.getElementById("rent-banner-el").textContent    = RENT_BANNER;
 
-  // Theme toggle
-  document.getElementById("btn-theme").addEventListener("click", () => {
-    const html    = document.documentElement;
-    const current = html.getAttribute("data-theme");
-    // Resolve effective theme (fall back to OS preference when no override)
-    const isDark  = current === "dark" ||
-                    (!current && matchMedia("(prefers-color-scheme: dark)").matches);
-    const next    = isDark ? "light" : "dark";
-    html.setAttribute("data-theme", next);
-    localStorage.setItem("ea-theme", next);
-  });
+  initThemeToggle();
 
   document.getElementById("btn-start").addEventListener("click", () => {
     track("quiz-start");
@@ -883,6 +929,28 @@ function updateProgress() {
   });
   document.querySelector(".phase-progress")
           .setAttribute("aria-valuenow", state.currentQ);
+  document.getElementById("progress-fill").style.width = (state.currentQ / 3 * 100) + "%";
+}
+
+// ─── THEME TOGGLE ────────────────────────────────────────────
+function initThemeToggle() {
+  const btn = document.getElementById("btn-theme");
+  const sunSVG  = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+  const moonSVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+
+  function isDark() {
+    const t = document.documentElement.getAttribute("data-theme");
+    return t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+  function syncIcon() { btn.innerHTML = isDark() ? sunSVG : moonSVG; }
+
+  syncIcon();
+  btn.addEventListener("click", () => {
+    const next = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("ea-theme", next);
+    syncIcon();
+  });
 }
 
 function finishQuiz() {
@@ -931,6 +999,7 @@ function showResultsScreen() {
   document.getElementById("results-summary").innerHTML =
     `${count} ${countWord} за: <strong>${budgetLabel}</strong> · <strong>${charLabel}</strong> · <strong>${transportLabel}</strong>`;
 
+  document.getElementById("progress-fill").style.width = "100%";
   renderCards();
   showScreen("results");
 }
@@ -1060,6 +1129,7 @@ function restart() {
     b.classList.toggle("active", i === 0);
   });
   document.querySelectorAll(".quiz-option").forEach(b => b.classList.remove("quiz-option--selected"));
+  document.getElementById("progress-fill").style.width = "0%";
   updateProgress();
 
   showScreen("quiz");
