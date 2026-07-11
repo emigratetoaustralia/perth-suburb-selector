@@ -11,7 +11,7 @@
  * character:    "quiet" | "lively"
  * transport:    "car"   | "pt"
  * coastalFilter:"all"   | "coastal"
- * sortMode:     "proximity" | "affordability"
+ * sortMode:     "recommended" | "proximity" | "affordability"
  */
 
 // ---------------------------------------------------------------------------
@@ -108,7 +108,9 @@ function runQuiz(budget, character, transport) {
  *
  * @param {object[]} pool          Full sorted pool from runQuiz().
  * @param {string}   coastalFilter "all" | "coastal"
- * @param {string}   sortMode      "proximity" | "affordability"
+ * @param {string}   sortMode      "recommended" | "proximity" | "affordability"
+ *                                 "recommended" preserves the runQuiz() order,
+ *                                 which reflects the user's transport answer.
  * @returns {object[]} New array with toggles applied.
  */
 function applyToggles(pool, coastalFilter, sortMode) {
@@ -117,7 +119,7 @@ function applyToggles(pool, coastalFilter, sortMode) {
     ? pool.filter((s) => s.coastal === true)
     : [...pool];
 
-  // Step 2 — Sort re-order
+  // Step 2 — Sort re-order ("recommended" keeps runQuiz() order untouched)
   if (sortMode === "proximity") {
     result.sort((a, b) => a.cbd_km - b.cbd_km);
   } else if (sortMode === "affordability") {
