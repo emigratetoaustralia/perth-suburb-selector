@@ -4,14 +4,22 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#FF8000" />
+<meta name="description" content="Три въпроса — препоръки за квартали в Пърт според бюджет, начин на живот и транспорт. От Емигрирай в Австралия." />
+<meta property="og:title" content="Намери квартала си в Пърт" />
+<meta property="og:description" content="Три въпроса — препоръки за квартали в Пърт според бюджет, начин на живот и транспорт." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/png" href="EA.png" />
 <title>Намери квартала си в Пърт</title>
 
 <!-- Prevent FOUC on manual theme toggle -->
-<script>const t = localStorage.getItem('ea-theme'); if (t) document.documentElement.setAttribute('data-theme', t);</script>
+<script>try { const t = localStorage.getItem('ea-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
 
 <link rel="stylesheet" href="design_system_new.css" />
 
 <style>
+/* ── Utility ────────────────────────────────────────────── */
+.hidden { display: none !important; }
+
 /* ── Screen transitions ─────────────────────────────────── */
 .screen { display: none; animation: fadeUp 0.4s ease both; }
 .screen.active { display: block; }
@@ -54,6 +62,8 @@
 }
 :root[data-theme="dark"] .filter-chip[data-nor="nor"].chip--active { color: #7aaddc; border-color: #7aaddc; background: rgba(2,82,163,0.20); }
 :root[data-theme="dark"] .filter-chip[data-nor="sor"].chip--active { color: #d97a7a; border-color: #d97a7a; background: rgba(153,3,0,0.20); }
+:root[data-theme="light"] .filter-chip[data-nor="nor"].chip--active { color: var(--brand-blue); border-color: var(--brand-blue); background: rgba(2,82,163,0.12); }
+:root[data-theme="light"] .filter-chip[data-nor="sor"].chip--active { color: var(--danger); border-color: var(--danger); background: rgba(153,3,0,0.12); }
 
 /* ── Toggle group (coastal / sort) ─────────────────────── */
 .toggle-group {
@@ -62,6 +72,9 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   overflow: hidden;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .toggle-btn {
   background: none;
@@ -159,6 +172,11 @@
 :root[data-theme="dark"] .badge-pt-good { background: rgba(1,163,79,0.15); color: var(--green-300); }
 :root[data-theme="dark"] .badge-pt-moderate { background: rgba(255,128,0,0.15); color: var(--orange-300); }
 :root[data-theme="dark"] .badge-pt-car  { color: #d97a7a; }
+:root[data-theme="light"] .badge-nor     { color: var(--brand-blue); }
+:root[data-theme="light"] .badge-sor     { color: var(--danger); }
+:root[data-theme="light"] .badge-pt-good { background: var(--green-50); color: var(--brand-green); }
+:root[data-theme="light"] .badge-pt-moderate { background: var(--orange-50); color: var(--orange-700); }
+:root[data-theme="light"] .badge-pt-car  { color: var(--danger); }
 
 .card-body { padding: var(--space-4) var(--space-5) 0; }
 .card-description {
@@ -602,7 +620,7 @@
     <!-- ── SCREEN: QUIZ ──────────────────────────────────── -->
     <section id="screen-quiz" class="screen" aria-label="Въпросник">
 
-      <div class="phase-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" aria-label="Прогрес на въпросника">
+      <div class="phase-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="1" aria-label="Прогрес на въпросника">
         <div class="phase-progress__bar">
           <div class="phase-progress__segment phase-progress__segment--active" data-step="1"></div>
           <div class="phase-progress__segment" data-step="2"></div>
@@ -699,7 +717,8 @@
               <button class="toggle-btn" data-toggle="coastal" data-v="coastal">Само крайбрежни</button>
             </div>
             <div class="toggle-group" role="group" aria-label="Сортиране">
-              <button class="toggle-btn active" data-toggle="sort" data-v="affordability">По-нисък наем</button>
+              <button class="toggle-btn active" data-toggle="sort" data-v="recommended">Препоръчано</button>
+              <button class="toggle-btn" data-toggle="sort" data-v="affordability">По-нисък наем</button>
               <button class="toggle-btn" data-toggle="sort" data-v="proximity">Близост до центъра</button>
             </div>
           </div>
@@ -777,9 +796,17 @@ const state = {
   basePool:     [],
   visibleCount: VISIBLE_DEFAULT,
   coastal:      "all",
-  sort:         "proximity",
+  sort:         "recommended",
   norSor:       "all",
 };
+
+// ─── SAFE STORAGE (private mode / blocked storage must not break the app) ──
+function storageGet(key) {
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+}
+function storageSet(key, value) {
+  try { localStorage.setItem(key, value); } catch (e) { /* non-fatal */ }
+}
 
 // ─── GOATCOUNTER ─────────────────────────────────────────────
 function track(event, value) {
@@ -798,11 +825,12 @@ async function sha256(str) {
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById("screen-" + id).classList.add("active");
+  window.scrollTo(0, 0);
 }
 
 // ─── INIT ────────────────────────────────────────────────────
 (function init() {
-  if (localStorage.getItem("pss_unlocked") === "1") {
+  if (storageGet("pss_unlocked") === "1") {
     state.unlocked = true;
   }
 
@@ -869,10 +897,15 @@ async function handleUnlock() {
   const input = document.getElementById("code-input");
   const error = document.getElementById("gate-error");
 
-  const hash = await sha256(raw);
+  let hash = null;
+  try {
+    hash = await sha256(raw);
+  } catch (e) {
+    // crypto.subtle unavailable (insecure context) — fall through to error state
+  }
 
   if (hash === CODE_HASH) {
-    localStorage.setItem("pss_unlocked", "1");
+    storageSet("pss_unlocked", "1");
     state.unlocked = true;
     track("code-unlock-success");
     input.classList.remove("error");
@@ -887,13 +920,19 @@ async function handleUnlock() {
 }
 
 // ─── QUIZ FLOW ───────────────────────────────────────────────
+let quizAdvancing = false; // guards against double-tap advancing two questions at once
+
 function handleChoice(question, value) {
+  if (quizAdvancing) return;
+  quizAdvancing = true;
+
   state.answers[question] = value;
 
   document.querySelectorAll(`[data-q="${question}"]`)
           .forEach(b => b.classList.toggle("quiz-option--selected", b.dataset.v === value));
 
   setTimeout(() => {
+    quizAdvancing = false;
     if (state.currentQ < 3) {
       advanceQuestion();
     } else {
@@ -937,7 +976,7 @@ function initThemeToggle() {
   btn.addEventListener("click", () => {
     const next = isDark() ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("ea-theme", next);
+    storageSet("ea-theme", next);
     syncIcon();
   });
 }
@@ -950,8 +989,9 @@ function finishQuiz() {
   state.basePool     = runQuiz(budget, character, transport);
   state.visibleCount = VISIBLE_DEFAULT;
   state.coastal      = "all";
-  state.sort         = "affordability";
+  state.sort         = "recommended";
   state.norSor       = "all";
+  shownTracked.clear();
 
   if (!state.unlocked) {
     const count     = state.basePool.length;
@@ -972,7 +1012,7 @@ function showResultsScreen() {
   document.querySelectorAll("[data-toggle]").forEach(btn => {
     btn.classList.toggle("active",
       (btn.dataset.toggle === "coastal" && btn.dataset.v === "all") ||
-      (btn.dataset.toggle === "sort"    && btn.dataset.v === "affordability")
+      (btn.dataset.toggle === "sort"    && btn.dataset.v === "recommended")
     );
   });
   document.querySelectorAll(".filter-chip").forEach(c => {
@@ -1002,6 +1042,8 @@ function getDisplayPool() {
 }
 
 // ─── RENDER ──────────────────────────────────────────────────
+const shownTracked = new Set(); // one "suburb-shown" event per suburb per quiz run
+
 function renderCards() {
   const pool      = getDisplayPool();
   const container = document.getElementById("cards-container");
@@ -1023,8 +1065,10 @@ function renderCards() {
     const card = buildCard(suburb, idx);
     container.appendChild(card);
   });
+  const toTrack = visible.filter(s => !shownTracked.has(s.id));
+  toTrack.forEach(s => shownTracked.add(s.id));
   setTimeout(() => {
-    visible.forEach((suburb, idx) => {
+    toTrack.forEach((suburb, idx) => {
       setTimeout(() => track("suburb-shown", suburb.id), idx * 350);
     });
   }, 1000);

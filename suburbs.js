@@ -108,7 +108,7 @@ const SUBURBS = [
     character: "lively",
     pt: "good",
     coastal: true,
-    nor_sor: "sor",
+    nor_sor: "nor",
     cbd_km: 14,
     rent_3br: { sparse: false, floor: 1200, ceiling: 1500 },
     rent_4br: { sparse: false, floor: 1600, ceiling: 2500 },
